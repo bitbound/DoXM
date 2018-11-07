@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DoXM Remote Control</title>
+    <script src="../Lib/signalr/signalr.min.js"></script>
+    <script src="../Lib/adapter.js"></script>
+</head>
+<body>
+    <div class="header">
+        <span id="doxmTitle" class="title">DoXM Remote Control</span>
+        <img src="../Assets/DoXM_Icon_Transparent.png" class="logo" />
+    </div>
+
+    <div class="content">
+        <div id="column1">
+            <div class="section">
+                <h4>Invite Partner</h4>
+                <div>
+                    <label>Your Session ID:</label>
+                    <br>
+                    <input id="mySessionID" readonly value="Retrieving..." />
+                </div>
+                <div class="split-row">
+                    <div>
+                        <label>View Only:</label>
+                    </div>
+                    <div>
+                        <label class="toggle-switch">
+                            <input id="viewOnlyToggle" type="checkbox">
+                            <span class="toggle-track"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="split-row">
+                    <div>
+                        <label>Invite Link:</label>
+                    </div>
+                    <div>
+                        <button id="copyInviteLinkButton">Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <h4>Connect To Partner</h4>
+                <div>
+                    <label>Your Name:</label>
+                    <br>
+                    <input id="requesterName" />
+                    <br>
+                    <label>Their Session ID:</label>
+                    <br>
+                    <input id="theirSessionID" />
+                    <div class="align-right">
+                        <button id="connectButton" class="form-button">Connect</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id="column2">
+
+            <div id="viewerSection" class="section">
+                <h4>Current Viewers</h4>
+                <div>
+                    <select id="viewerList" multiple></select>
+                    <br>
+                    <div class="align-right form-button">
+                        <button id="removeViewerButton">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        h4 {
+            margin: 0 0 5px 0;
+        }
+
+        input {
+            width: calc(100% - 10px);
+            padding: 5px;
+        }
+
+        label {
+            font-size: .8em;
+        }
+
+        button {
+            background: white;
+            border: 2px solid dimgray;
+            padding: 7px 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: whitesmoke;
+        }
+
+        button:active {
+            background: lightgray;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: auto;
+            grid-column-gap: 30px;
+        }
+
+        .section {
+            padding: 10px;
+        }
+
+        .header {
+            height: 40px;
+            line-height: 40px;
+            background-color: rgb(50,50,50);
+            border-bottom: 1px solid white;
+            padding: 5px 10px;
+        }
+
+        .title {
+            font-family: 'Courier New', Courier, monospace;
+            float: left;
+            font-weight: bold;
+            color: darkorange;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .align-right {
+            text-align: right;
+        }
+
+        .logo {
+            float: right;
+            height: 40px;
+        }
+
+        .form-button {
+            margin-top: 7px;
+        }
+
+
+        #viewerList {
+            width: 100%;
+            height: 150px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+
+        .toggle-track {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 25px;
+        }
+
+        .toggle-track:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            vertical-align: middle;
+            top: 3px;
+            left: 3px;
+            border: none;
+            background-color: white;
+            border-radius: 50%;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-track {
+            background-color: darkorange;
+        }
+
+        input:focus + .toggle-track {
+            box-shadow: 0 0 1px darkorange;
+        }
+
+        input:checked + .toggle-track:before {
+            -webkit-transform: translateX(25px);
+            -ms-transform: translateX(25px);
+            transform: translateX(25px);
+        }
+
+        .split-row {
+            display: grid;
+            width: 100%;
+            grid-template-columns: 1fr 1fr;
+            margin-top: 10px;
+        }
+
+        .split-row :nth-child(2) {
+            text-align: right;
+        }
+
+        .float-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px;
+            font-weight: bold;
+            background-color: rgba(0, 0, 0, .75);
+            opacity: 1;
+            color: white;
+            z-index: 3;
+            border-radius: 5px;
+            user-select: none;
+            pointer-events: none;
+            animation-name: float-message;
+            animation-delay: 1s;
+            animation-duration: .75s;
+            animation-fill-mode: forwards;
+            animation-timing-function: ease-in;
+        }
+
+        @keyframes float-message {
+            from {
+                opacity: 1;
+                top: 50%;
+            }
+
+            to {
+                opacity: 0;
+                top: 0;
+            }
+        }
+    </style>
+
+    <script>
+        require('./NormalPage.js');
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

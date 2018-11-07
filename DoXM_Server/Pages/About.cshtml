@@ -1,0 +1,22 @@
+﻿@page
+@model AboutModel
+@{
+    ViewData["Title"] = "About";
+}
+<h3>@ViewData["Title"] DoXM</h3>
+
+<p>
+    Website: <a href="https://doxm.app">https://doxm.app</a>
+</p>
+<p>
+    Contact:  <a href="https://doxm.app/Contact">https://doxm.app/Contact</a>
+</p>
+<p>
+    Privacy Policy: <a asp-page="/Privacy">@Request.Scheme://@Request.Host/Privacy</a>
+</p>
+<p>
+    Open-Source Licenses: <a asp-page="/Credits">@Request.Scheme://@Request.Host/Credits</a>
+</p>
+<p>
+    Version: @System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()
+</p>

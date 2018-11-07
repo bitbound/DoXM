@@ -1,0 +1,88 @@
+﻿body {
+    color: rgb(180,180,180);
+}
+.console-prompt {
+    color: royalblue;
+}
+
+.console-output {
+    color: limegreen;
+}
+
+
+.navbar .navbar-header .navbar-brand {
+    color: white;
+}
+
+.logo-subtitle {
+    color: darkorange;
+}
+
+.table-hover > tbody > .record-row.row-selected {
+    background-color: rgb(75, 75, 75);
+}
+
+#consoleStatusDiv select {
+    background-color: transparent;
+}
+
+.console-status-value {
+    color: darkorange;
+}
+
+#qrCode img {
+    border-color: white;
+}
+.help-wrapper {
+    color: whitesmoke;
+}
+
+.extended-help {
+    color: gray;
+}
+
+.console-input-prompt {
+    color: darkorange;
+}
+
+.console-input-prompt select {
+    background-color: transparent;
+}
+
+.console-block textarea {
+    background-color: transparent;
+    color: white;
+}
+.echo-input {
+    color:gray;
+}
+.machine-tag {
+    color: black;
+}
+
+.console-output table.console-machine-table {
+    color: limegreen;
+}
+
+#commandCompletionDiv {
+    color: white;
+    background-color: rgb(25, 25, 25);
+}
+#commandInfoDiv {
+    color: white;
+    background-color: rgb(50, 50, 50);
+}
+
+.command-completion-item.selected {
+    background-color: rgba(255,255,255,0.2);
+}
+.command-completion-item:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+.command-harness-title{
+    color: whitesmoke;
+
+}
+.input-group-addon .glyphicon.glyphicon-ok {
+    color: limegreen;
+}

@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>DoXM Remote Control</title>
+    <script src="../Lib/signalr/signalr.min.js"></script>
+    <script src="../Lib/adapter.js"></script>
+</head>
+<body title="Your screen is being viewed.">
+    <img id="doxmLogo" src="../Assets/DoXM_Icon_Transparent.png" style="height:60px; width:60px"  title="Your screen is being viewed."/>
+    <style>
+        body {
+            overflow:hidden;
+            text-align: center;
+            background-color: black;
+        }
+
+        #doxmLogo {
+            vertical-align: middle;
+            animation-name: SpinLogo;
+            animation-iteration-count: infinite;
+            animation-direction: alternate-reverse;
+            animation-duration: 4s;
+            animation-timing-function: linear;
+            /*-webkit-app-region: drag;*/
+        }
+
+        @keyframes SpinLogo {
+            0% {
+                transform: rotateY(0deg) rotateX(0deg);
+            }
+
+            20% {
+                transform: rotateY(0deg) rotateX(0deg);
+            }
+
+            50% {
+                transform: rotateY(180deg) rotateX(0deg);
+            }
+
+            80% {
+                transform: rotateY(180deg) rotateX(180deg);
+            }
+
+            100% {
+                transform: rotateY(180deg) rotateX(180deg);
+            }
+        }
+
+    </style>
+    <script>
+        require("./UnattendedPage.js");
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
