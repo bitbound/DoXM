@@ -12,6 +12,7 @@ const RCClient_1 = require("./RCClient");
 const fs = require("fs");
 const path = require("path");
 const DesktopWatcher = require("../Services/DesktopWatcher");
+const os_1 = require("os");
 class RCDeviceSockets {
     async Connect() {
         if (RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") {
@@ -36,7 +37,9 @@ class RCDeviceSockets {
             electron_1.remote.dialog.showErrorBox("Connection Failure", "Unable to connect to server.");
             electron_1.remote.app.exit();
         }).then(() => {
-            DesktopWatcher.Watch();
+            if ((RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") && os_1.platform() == "win32") {
+                DesktopWatcher.Watch();
+            }
             this.HubConnection.invoke("GetIceConfiguration");
         });
         this.HubConnection.closedCallbacks.push((ev) => {

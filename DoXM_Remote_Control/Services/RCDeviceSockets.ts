@@ -10,6 +10,7 @@ import { RCClient } from "./RCClient";
 import * as fs from "fs";
 import * as path from "path";
 import * as DesktopWatcher from "../Services/DesktopWatcher";
+import { platform } from "os";
 
 export class RCDeviceSockets {
     HubConnection: any;
@@ -38,7 +39,9 @@ export class RCDeviceSockets {
             remote.dialog.showErrorBox("Connection Failure", "Unable to connect to server.");
             remote.app.exit();
         }).then(() => {
-            DesktopWatcher.Watch();
+            if ((RCClient.Mode == "Unattended" || RCClient.Mode == "DesktopSwitch") && platform() == "win32") {
+                DesktopWatcher.Watch();
+            }
             this.HubConnection.invoke("GetIceConfiguration");
         });
         this.HubConnection.closedCallbacks.push((ev) => {
