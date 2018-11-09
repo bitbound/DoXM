@@ -115,6 +115,7 @@ class Viewer {
         });
     }
     SetDesktopStream(screenIndex) {
+        var peerConnection = this.PeerConnection;
         this.CurrentScreenIndex = screenIndex;
         var constraints = {
             video: {
@@ -137,14 +138,14 @@ class Viewer {
                 constraints.video.mandatory.chromeMediaSourceId = sources[screenIndex].id;
                 async function setTrack(stream) {
                     stream.getTracks().forEach(track => {
-                        var existingSenders = this.PeerConnection.getSenders();
+                        var existingSenders = peerConnection.getSenders();
                         if (existingSenders.some(x => x.track.kind == track.kind)) {
                             //existingSenders.find(x => x.track.kind == track.kind).replaceTrack(track);
-                            this.PeerConnection.removeTrack(existingSenders.find(x => x.track.kind == track.kind));
-                            this.PeerConnection.addTrack(track, stream);
+                            peerConnection.removeTrack(existingSenders.find(x => x.track.kind == track.kind));
+                            peerConnection.addTrack(track, stream);
                         }
                         else {
-                            this.PeerConnection.addTrack(track, stream);
+                            peerConnection.addTrack(track, stream);
                         }
                     });
                     resolve();
