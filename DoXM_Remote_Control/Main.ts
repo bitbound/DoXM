@@ -19,7 +19,7 @@ function createNormalPage() {
         icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
     });
     mainWindow.setMenuBarVisibility(false);
-    mainWindow.loadURL(__dirname + '/Pages/NormalPage.html');
+    mainWindow.loadFile(__dirname + '/Pages/NormalPage.html');
     mainWindow.show();
     setSessionHeaders(mainWindow.webContents.session);
 }
@@ -50,7 +50,7 @@ function createUnattendedPage(mode: string) {
         frame: false
     });
     mainWindow.setMenuBarVisibility(false);
-    mainWindow.loadURL('file://' + __dirname + '/Pages/UnattendedPage.html');
+    mainWindow.loadFile('file://' + __dirname + '/Pages/UnattendedPage.html');
     mainWindow.show();
     setSessionHeaders(mainWindow.webContents.session);
 

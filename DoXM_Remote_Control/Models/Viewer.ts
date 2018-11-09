@@ -146,7 +146,7 @@ export class Viewer {
                     throw error;
                 }
                 constraints.video.mandatory.chromeMediaSourceId = sources[screenIndex].id;
-                navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
+                async function setTrack(stream) {
                     stream.getTracks().forEach(track => {
                         var existingSenders = this.PeerConnection.getSenders();
                         if (existingSenders.some(x => x.track.kind == track.kind)) {
@@ -159,11 +159,19 @@ export class Viewer {
                         }
                     });
                     resolve();
-                }).catch((e) => {
-                    console.error(e);
-                    Logger.WriteLog(e.message);
-                    Electron.remote.dialog.showErrorBox("Capture Failure", "Unable to capture desktop.");
-                    reject(e);
+                }
+                navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
+                    setTrack(stream);
+                }).catch(() => {
+                    delete constraints.audio;
+                    navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
+                        setTrack(stream);
+                    }).catch((e) => {
+                        console.error(e);
+                        Logger.WriteLog(e.message);
+                        Electron.remote.dialog.showErrorBox("Capture Failure", "Unable to capture desktop.");
+                        reject(e);
+                    })
                 })
             })
         });

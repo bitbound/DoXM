@@ -34,10 +34,16 @@ exports.RCClient = new class {
                 navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
                     stream.getTracks();
                     resolve();
-                }).catch((e) => {
-                    console.error(e);
-                    electron_1.remote.dialog.showErrorBox("Capture Failure", "Unable to capture desktop.");
-                    reject(e);
+                }).catch(() => {
+                    delete constraints.audio;
+                    navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
+                        stream.getTracks();
+                        resolve();
+                    }).catch((e) => {
+                        console.error(e);
+                        electron_1.remote.dialog.showErrorBox("Capture Failure", "Unable to capture desktop.");
+                        reject(e);
+                    });
                 });
             });
         });

@@ -99,13 +99,7 @@ export function ApplyInputHandlers(sockets: RCBrowserSockets, rtc: BrowserRTC) {
     (document.querySelector("#fileTransferInput") as HTMLInputElement).addEventListener("change", (ev) => {
         uploadFiles(FileTransferInput.files);
     });
-    document.querySelector("#lockMachineButton").addEventListener("click", (ev) => {
-        if (!RemoteControl.ServiceID) {
-            ShowMessage("Not available for this session.");
-            return;
-        }
-        RemoteControl.RCBrowserSockets.SendLockMachine();
-    });
+  
     document.querySelector("#ctrlAltDelButton").addEventListener("click", (ev) => {
         if (!RemoteControl.ServiceID) {
             ShowMessage("Not available for this session.");

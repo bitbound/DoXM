@@ -186,10 +186,7 @@ namespace DoXM_Client.Services
             {
                 User32.SendSAS(false);
             });
-            HubConnection.On("LockMachine", () =>
-            {
-                User32.LockWorkStation();
-            });
+          
             hubConnection.On("ServerVerificationToken", (string verificationToken) =>
             {
                 if (verificationToken == Utilities.GetConnectionInfo().ServerVerificationToken)

@@ -153,10 +153,6 @@ namespace DoXM_Server.Services
         {
             await RCDeviceHub.Clients.Client(ClientID).SendAsync("KeyPress", key, Context.ConnectionId);
         }
-        public async Task LockMachine(string serviceID)
-        {
-            await DeviceHub.Clients.Client(serviceID).SendAsync("LockMachine");
-        }
         public async Task CtrlAltDel(string serviceID)
         {
             await DeviceHub.Clients.Client(serviceID).SendAsync("CtrlAltDel");

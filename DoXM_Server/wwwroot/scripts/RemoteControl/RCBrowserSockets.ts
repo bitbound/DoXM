@@ -78,9 +78,7 @@ export class RCBrowserSockets {
     SendKeyPress(key: string): any {
         this.Connection.invoke("KeyPress", key);
     }
-    SendLockMachine() {
-        this.Connection.invoke("LockMachine", RemoteControl.ServiceID);
-    }
+    
     SendCtrlAltDel() {
         this.Connection.invoke("CtrlAltDel", RemoteControl.ServiceID);
     }
