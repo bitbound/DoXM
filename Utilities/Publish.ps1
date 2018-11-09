@@ -3,12 +3,12 @@
    Publishes the DoXM client.
 .DESCRIPTION
    Publishes the DoXM client.
-   For automated deployments, supply the following arguments: -webhost example.com -turnhost turn.example.com
+   For automated deployments, supply the following arguments: -hostname example.com -rid win10-x64 -outdir path\to\dir
 .COPYRIGHT
    Copyright ©  2018 Translucency Software.  All rights reserved.
 .EXAMPLE
    Run it from the Utilities folder (located in the solution directory).
-   Or run "powershell -f PublishClients.ps1 -webhost myhost.com -turnhost turn.myhost.com"
+   Or run "powershell -f PublishClients.ps1 -hostname example.com -rid win10-x64 -outdir path\to\dir
 #>
 $ErrorActionPreference = "Stop"
 $Year = (Get-Date).Year.ToString()
@@ -17,12 +17,11 @@ $Day = (Get-Date).Day.ToString().PadLeft(2, "0")
 $Hour = (Get-Date).Hour.ToString().PadLeft(2, "0")
 $Minute = (Get-Date).Minute.ToString().PadLeft(2, "0")
 $CurrentVersion = "$Year.$Month.$Day.$Hour$Minute"
-$EditBin = "C:\Users\Typic\Source\Repos\DoXM\Utilities\editbin.exe"
-$ArgList = [System.Collections.ArrayList]::new()
+$ArgList = New-Object -TypeName System.Collections.ArrayList
 $HostName = $HostName
 $OutDir = $OutDir
+# RIDs are described here: https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
 $RID = $RID
-$ClearConfig = $ClearConfig
 
 
 function Replace-LineInFile($FilePath, $MatchPattern, $ReplaceLineWith){
@@ -64,10 +63,7 @@ else {
     for ($i = 0; $i -lt $args.Count; $i++)
     { 
         $arg = $args[$i].ToString().ToLower()
-        if ($arg.Contains("turnhost")){
-            $TURNHost = $args[$i+1]
-        }
-        elseif ($arg.Contains("webhost")){
+        elseif ($arg.Contains("hostname")){
             $HostName = $args[$i+1]
         }
         elseif ($arg.Contains("outdir")){
@@ -75,9 +71,6 @@ else {
         }
         elseif ($arg.Contains("rid")){
             $RID = $args[$i+1]
-        }
-         elseif ($arg.Contains("clearconfig")){
-            $ClearConfig = $args[$i+1]
         }
     }
 }
@@ -183,46 +176,5 @@ if ($ArgList.Contains("r")) {
 if ($ArgList.Contains("s")) {
     Push-Location -Path ".\DoXM_Server\"
     dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime $RID --configuration Release --output $OutDir
-    if ($ClearConfig -ilike "true") {
-        $AppSettings = @"
-            {
-              "ConnectionStrings": {
-                "SQLite": "DataSource=..\\DoXM_Server.db",
-                "SQLServer": "Server=(localdb)\\mssqllocaldb;Database=aspnet-DoXM_Server;Trusted_Connection=True;MultipleActiveResultSets=true",
-                "PostgreSQL": "Host=localhost;Database=doxm;Username=;Password="
-              },
-              "Logging": {
-                "LogLevel": {
-                  "Default": "Warning"
-                }
-              },
-              "ApplicationOptions": {
-                "DefaultPrompt": "~>",
-                "DBProvider": "SQLite",
-                "AllowSelfRegistration": true,
-                "UseDomainAuthentication": false,
-                "ShowMessageOfTheDay": true,
-                "IceConfiguration": {
-                  "iceServers": [
-                    { "urls": "stun:" },
-                    {
-                      "urls": "turn:",
-                      "credential": "",
-                      "username": ""
-                    }
-                  ]
-                },
-                "SmtpHost": "",
-                "SmtpPort": 25,
-                "SmtpUserName": "",
-                "SmtpPassword": "",
-                "SmtpEmail": "",
-                "SmtpDisplayName": ""
-              }
-            }
-"@
-        $AppSettings | ConvertTo-Json | Out-File -FilePath "$OutDir\appsettings.json" -Force -Encoding utf8
-    }
-
     Pop-Location
 }

@@ -6,7 +6,7 @@ sudo apt-get install -y coturn
 sudo rm -rf /var/lib/apt/lists/*
 
 # Replace CN appropriately.
-# sudo openssl req -x509 -newkey rsa:4096 -keyout /etc/ssl/turn_server_pkey.pem -out /etc/ssl/turn_server_cert.pem -days 365 -subj "/C=US/ST=Oregon/L=Keizer/O=Translucency/OU=DoXM/CN=my.doxm.app"
+sudo openssl req -x509 -newkey rsa:4096 -passin $4 -keyout /etc/ssl/turn_server_pkey.pem -out /etc/ssl/turn_server_cert.pem -days 365 -subj "/C=US/ST=Oregon/L=Keizer/O=Translucency/OU=DoXM/CN=my.doxm.app"
 
 echo "TURNSERVER_ENABLED=1" | sudo tee /etc/default/coturn
 
@@ -25,4 +25,4 @@ sudo turnadmin -a -u $1 -p $2 -r $3
 
 # Add an admin that will have access to the web console.  Server is located
 # at https://[host/ip]:5349
-#sudo turnadmin -A u doxm_admin -p mypassword
+#sudo turnadmin -A -u doxm_admin -p mypassword
