@@ -6,6 +6,7 @@ var host = Electron.remote.getGlobal("TargetHost");
 exports.ConnectButton = document.getElementById("connectButton");
 exports.RequesterNameInput = document.getElementById("requesterName");
 exports.MySessionIDInput = document.getElementById("mySessionID");
+exports.MyPassword = document.getElementById("myPassword");
 exports.TheirSessionIDInput = document.getElementById("theirSessionID");
 exports.ViewerListSelect = document.getElementById("viewerList");
 exports.RemoveViewerButton = document.getElementById("removeViewerButton");

@@ -7,6 +7,7 @@
     margin: 0;
     padding: 0;
 }
+
 button {
     cursor: pointer;
     background-color: rgb(40,40,40);
@@ -14,6 +15,7 @@ button {
     border-radius: 5px;
     border: none;
 }
+
 .bar-button {
     height: 100%;
 }
@@ -29,13 +31,16 @@ button:active {
 button.toggled {
     background-color: rgb(120,120,120);
 }
+
 button[disabled] {
     background-color: rgb(90,90,90);
     color: gray;
 }
+
 .center-aligned {
     text-align: center;
 }
+
 .connection-bar {
     display: inline-block;
     position: fixed;
@@ -77,6 +82,7 @@ button[disabled] {
     float: right;
     cursor: pointer;
 }
+
 #menuButton:hover {
     color: white;
 }
@@ -95,15 +101,18 @@ button[disabled] {
     overflow: hidden;
     white-space: nowrap;
 }
+
 .horizontal-button-bar.open {
     height: 40px;
     padding: 10px;
     transition: all 250ms;
 }
+
 .horizontal-button-bar .bar-button {
     margin: 0 5px 0 5px;
     font-size: .8em;
 }
+
 #screenViewer {
     max-width: 99vw;
     max-height: 99vh;
@@ -184,7 +193,8 @@ footer a {
 .right-aligned {
     text-align: right;
 }
-.form-block{
+
+.form-block {
     margin-bottom: 10px;
 }
 
@@ -214,6 +224,7 @@ footer a {
     animation-fill-mode: forwards;
     animation-timing-function: ease-in;
 }
+
 @keyframes float-message {
     from {
         opacity: 1;
@@ -224,6 +235,35 @@ footer a {
         opacity: 0;
         top: 0;
     }
+}
+
+
+.modal-prompt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+    background-color: rgb(60, 60, 60);
+    border: 2px solid white;
+    border-radius: 5px;
+    box-shadow: 10px 10px 5px rgba(50,50,50,0.9);
+    z-index: 3;
+    min-height: 100px;
+    color: white;
+}
+.modal-prompt input {
+    margin-top: 15px;
+    width: 100%;
+}
+.buttons-footer {
+    text-align: right;
+    margin-top: 10px
+}
+.buttons-footer button {
+    height: 30px;
+    width: 60px;
+    margin-left: 10px;
 }
 
 #touchKeyboardInput {

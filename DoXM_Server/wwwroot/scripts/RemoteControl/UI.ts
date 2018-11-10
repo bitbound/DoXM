@@ -278,6 +278,44 @@ export function ShowMessage(message: string) {
     }, 5000);
 }
 
+export function Prompt(promptMessage: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        var modalDiv = document.createElement("div");
+        modalDiv.classList.add("modal-prompt");
+
+        var messageDiv = document.createElement("div");
+        messageDiv.innerHTML = promptMessage;
+
+        var responseInput = document.createElement("input");
+
+        var buttonsDiv = document.createElement("div");
+        buttonsDiv.classList.add("buttons-footer");
+
+        var cancelButton = document.createElement("button");
+        cancelButton.innerHTML = "Cancel";
+
+        var okButton = document.createElement("button");
+        okButton.innerHTML = "OK";
+
+        buttonsDiv.appendChild(okButton);
+        buttonsDiv.appendChild(cancelButton);
+        modalDiv.appendChild(messageDiv);
+        modalDiv.appendChild(responseInput);
+        modalDiv.appendChild(buttonsDiv);
+
+        document.body.appendChild(modalDiv);
+
+        okButton.onclick = () => {
+            modalDiv.remove();
+            resolve(responseInput.value);
+        }
+
+        cancelButton.onclick = () => {
+            modalDiv.remove();
+            resolve(null);
+        }
+    });
+}
 
 function uploadFiles(fileList: FileList) {
     ShowMessage("File upload started...");

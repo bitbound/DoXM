@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.SignalR;
 using DoXM_Library.Models;
 using Microsoft.AspNetCore.Http.Connections;
+using DoXM_Library.Services;
 
 namespace DoXM_Server
 {
@@ -88,6 +89,7 @@ namespace DoXM_Server
             services.AddSingleton<EmailSender>();
             services.AddScoped<DataService>();
             services.AddSingleton<ApplicationConfig>();
+            services.AddSingleton<RandomGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

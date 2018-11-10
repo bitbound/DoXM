@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{
 		Utilities\Get-PSCommands.ps1 = Utilities\Get-PSCommands.ps1
 		Utilities\Get-WindowsCommands.ps1 = Utilities\Get-WindowsCommands.ps1
 		Utilities\Publish.ps1 = Utilities\Publish.ps1
+		Utilities\Register-TURNServer.ps1 = Utilities\Register-TURNServer.ps1
 		Utilities\Setup_Ubuntu_Builder.sh = Utilities\Setup_Ubuntu_Builder.sh
 		Utilities\TURN_Install.sh = Utilities\TURN_Install.sh
 	EndProjectSection

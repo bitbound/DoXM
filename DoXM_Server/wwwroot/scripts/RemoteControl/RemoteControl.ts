@@ -12,6 +12,7 @@ export const RemoteControl = new class {
     RCBrowserSockets = rcBrowserSockets;
     BrowserRTC = browserRTC;
     ClientID = queryString["clientID"] ? decodeURIComponent(queryString["clientID"]) : undefined;
+    ClientPassword = "";
     ServiceID = queryString["serviceID"] ? decodeURIComponent(queryString["serviceID"]) : undefined;
     Mode: "Unattended" | "Normal";
     RequesterName: string;

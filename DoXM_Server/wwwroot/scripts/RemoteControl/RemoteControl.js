@@ -10,6 +10,7 @@ export const RemoteControl = new class {
         this.RCBrowserSockets = rcBrowserSockets;
         this.BrowserRTC = browserRTC;
         this.ClientID = queryString["clientID"] ? decodeURIComponent(queryString["clientID"]) : undefined;
+        this.ClientPassword = "";
         this.ServiceID = queryString["serviceID"] ? decodeURIComponent(queryString["serviceID"]) : undefined;
     }
 };

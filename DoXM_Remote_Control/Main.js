@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-global["TargetHost"] = "my.doxm.app";
+global["TargetHost"] = "localhost:5001";
 global["Proxy"] = "";
 global["ServiceID"] = "";
 var args = processArgs();
@@ -10,8 +10,8 @@ function createNormalPage() {
     global["Mode"] = "Normal";
     mainWindow = new electron_1.BrowserWindow({
         width: 475,
-        height: 475,
-        minHeight: 475,
+        height: 515,
+        minHeight: 515,
         minWidth: 475,
         show: false,
         icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'

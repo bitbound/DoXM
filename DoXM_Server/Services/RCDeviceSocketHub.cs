@@ -1,4 +1,6 @@
-﻿using DoXM_Server.Data;
+﻿using DoXM_Library.Models;
+using DoXM_Library.Services;
+using DoXM_Server.Data;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Concurrent;
@@ -10,24 +12,28 @@ namespace DoXM_Server.Services
 {
     public class RCDeviceSocketHub : Hub
     {
-        public static ConcurrentDictionary<string, string> AttendedSessionList { get; set; } = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, AttendedSessionInfo> AttendedSessionList { get; set; } = new ConcurrentDictionary<string, AttendedSessionInfo>();
         public RCDeviceSocketHub(DataService dataService, 
             IHubContext<BrowserSocketHub> browserHub, 
             IHubContext<RCBrowserSocketHub> rcBrowserHub, 
             IHubContext<DeviceSocketHub> deviceSocketHub,
-            ApplicationConfig appConfig)
+            ApplicationConfig appConfig,
+            RandomGenerator rng)
         {
             DataService = dataService;
             BrowserHub = browserHub;
             RCBrowserHub = rcBrowserHub;
             AppConfig = appConfig;
             DeviceHub = deviceSocketHub;
+            RNG = rng;
         }
         private ApplicationConfig AppConfig { get; set; }
         private IHubContext<DeviceSocketHub> DeviceHub { get; }
         private DataService DataService { get; }
         private IHubContext<BrowserSocketHub> BrowserHub { get; }
         private IHubContext<RCBrowserSocketHub> RCBrowserHub { get; }
+        
+        private RandomGenerator RNG { get; }
 
         public override Task OnConnectedAsync()
         {
@@ -96,12 +102,20 @@ namespace DoXM_Server.Services
                 sessionID += random.Next(0, 999).ToString().PadLeft(3, '0');
             }
             Context.Items["SessionID"] = sessionID;
-            while (!AttendedSessionList.TryAdd(sessionID, Context.ConnectionId))
+            Context.Items["Password"] = RNG.GenerateString(6);
+
+            var attendedSessionInfo = new AttendedSessionInfo()
+            {
+                SignalRConnectionID = Context.ConnectionId,
+                Password = Context.Items["Password"].ToString()
+            };
+
+            while (!AttendedSessionList.TryAdd(sessionID, attendedSessionInfo))
             {
                 await Task.Delay(1000);
             }
 
-            await Clients.Caller.SendAsync("SessionID", sessionID);
+            await Clients.Caller.SendAsync("SessionID", sessionID, Context.Items["Password"]);
         }
     }
 }

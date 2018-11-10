@@ -63,13 +63,16 @@ class RCDeviceSockets {
                     type: "question"
                 });
                 if (selection == 1) {
+                    Logger.WriteLog(`Remote control request denied.  Requester Name: ${requesterName}.  Requester ID: ${viewerRequesterID}.`);
                     this.HubConnection.invoke("SendConnectionFailedToBrowser", viewerRequesterID);
                     return;
                 }
+                Logger.WriteLog(`Remote control request accepted.  Requester Name: ${requesterName}.  Requester ID: ${viewerRequesterID}.`);
                 var viewer = new Viewer_1.Viewer(viewerRequesterID, requesterName);
                 viewer.InitRTC();
             }
             else if (RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") {
+                Logger.WriteLog(`Unattended remote control session started.  Requester ID: ${viewerRequesterID}.  Mode: ${RCClient_1.RCClient.Mode}.`);
                 var viewer = new Viewer_1.Viewer(viewerRequesterID, null);
                 viewer.InitRTC();
             }
@@ -89,12 +92,13 @@ class RCDeviceSockets {
                 this.HubConnection.invoke("GetSessionID");
             }
         });
-        this.HubConnection.on("SessionID", (sessionID) => {
+        this.HubConnection.on("SessionID", (sessionID, password) => {
             var formattedSessionID = "";
             for (var i = 0; i < sessionID.length; i += 3) {
                 formattedSessionID += sessionID.substr(i, 3) + " ";
             }
             NormalPage_1.MySessionIDInput.value = formattedSessionID.trim();
+            NormalPage_1.MyPassword.value = password;
         });
         this.HubConnection.on("SelectScreen", async (screenIndex, requesterID) => {
             var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);

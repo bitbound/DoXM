@@ -23,7 +23,7 @@ export class RCBrowserSockets {
     }
     ;
     SendOfferRequestToDevice() {
-        return this.Connection.invoke("SendOfferRequestToDevice", RemoteControl.ClientID, RemoteControl.RequesterName, RemoteControl.Mode);
+        return this.Connection.invoke("SendOfferRequestToDevice", RemoteControl.ClientID, RemoteControl.ClientPassword, RemoteControl.RequesterName, RemoteControl.Mode);
     }
     SendIceCandidate(candidate) {
         return this.Connection.invoke("SendIceCandidateToDevice", candidate, RemoteControl.Mode, RemoteControl.ClientID);
@@ -135,6 +135,20 @@ export class RCBrowserSockets {
         hubConnection.on("DesktopSwitchFailed", () => {
             UI.ShowMessage("Desktop switch failed.  Please reconnect.");
             RemoteControl.BrowserRTC.PeerConnection.close();
+        });
+        hubConnection.on("AskForClientPassword", (passwordIncorrect) => {
+            UI.Prompt("Enter the password shown on the client computer:").then((password) => {
+                if (password == null) {
+                    UI.ShowMessage("Connection aborted.");
+                    RemoteControl.BrowserRTC.PeerConnection.close();
+                    return;
+                }
+                RemoteControl.ClientPassword = password;
+                this.SendOfferRequestToDevice();
+            });
+            if (passwordIncorrect) {
+                UI.ShowMessage("Password incorrect.");
+            }
         });
     }
 }
