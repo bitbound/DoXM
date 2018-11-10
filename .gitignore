@@ -264,3 +264,4 @@ __pycache__/
 /DoXM_Server/wwwroot/Downloads/*.exe
 /DoXM_Server/wwwroot/Downloads/*.zip
 /DoXM_Server/wwwroot/Downloads/*.appimage
+*.pubxml

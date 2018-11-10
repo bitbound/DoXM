@@ -51,9 +51,6 @@ if ($args.Count -eq 0){
         if ([string]::IsNullOrWhiteSpace($RID)) {
             $RID = Read-Host "Server Runtime ID"
         }
-        if ([string]::IsNullOrWhiteSpace($ClearConfig)) {
-            $ClearConfig = Read-Host "Clear Server App Config [true/false]"
-        }
     }
 }
 else {
@@ -63,7 +60,7 @@ else {
     for ($i = 0; $i -lt $args.Count; $i++)
     { 
         $arg = $args[$i].ToString().ToLower()
-        elseif ($arg.Contains("hostname")){
+        if ($arg.Contains("hostname")){
             $HostName = $args[$i+1]
         }
         elseif ($arg.Contains("outdir")){
@@ -173,7 +170,7 @@ if ($ArgList.Contains("r")) {
 
 }
 
-if ($ArgList.Contains("s")) {
+if ($ArgList.Contains("s") -and (Test-Path -Path $OutDir) -eq $true) {
     Push-Location -Path ".\DoXM_Server\"
     dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime $RID --configuration Release --output $OutDir
     Pop-Location

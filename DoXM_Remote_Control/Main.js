@@ -47,7 +47,7 @@ function createUnattendedPage(mode) {
         frame: false
     });
     mainWindow.setMenuBarVisibility(false);
-    mainWindow.loadFile('file://' + __dirname + '/Pages/UnattendedPage.html');
+    mainWindow.loadFile(__dirname + '/Pages/UnattendedPage.html');
     mainWindow.show();
     setSessionHeaders(mainWindow.webContents.session);
     var currentScreen = electron_1.screen.getDisplayMatching(mainWindow.getBounds());

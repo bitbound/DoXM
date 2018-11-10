@@ -13,7 +13,11 @@ The following steps will configure your Windows 10 machine for building the DoXM
     * https://nodejs.org/download/release/v10.2.0/
 * Install Electron Builder globally with NPM.
     * npm install -g electron-builder
-* Install Ubuntu WSL.
+* Install Windows Build Tools globally with NPM.
+    * npm install -g windows-build-tools
+* Install Python 2.7.x.
+    * https://www.python.org/downloads/ 
+* Install Ubuntu WSL (Windows Subsystem for Linux).
     * https://docs.microsoft.com/en-us/windows/wsl/install-win10
     * This is required to build the Linux version of the remote control client.
 * Run Publish.ps1 in the Utilities folder.
@@ -23,7 +27,8 @@ The following steps will configure your Windows 10 machine for building the DoXM
 ## Build Instructions (Linux)
 See Setup_Ubuntu_Builder.sh and DoXM_Server_Install.sh in Utilities.
 
-## TURN Server
+## TURN Server  
+A TURN server is required for remote control.
 * Set up an Ubuntu server.  This will be the TURN server (using Coturn).
     * Run TURN_Install.sh with sudo, passing in necessary arguments.
     * Add the TURN user credentials to the DoXM server's appsettings.json, under IceConfiguration.

@@ -50,7 +50,7 @@ function createUnattendedPage(mode: string) {
         frame: false
     });
     mainWindow.setMenuBarVisibility(false);
-    mainWindow.loadFile('file://' + __dirname + '/Pages/UnattendedPage.html');
+    mainWindow.loadFile(__dirname + '/Pages/UnattendedPage.html');
     mainWindow.show();
     setSessionHeaders(mainWindow.webContents.session);
 
