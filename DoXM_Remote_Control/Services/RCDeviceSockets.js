@@ -92,13 +92,12 @@ class RCDeviceSockets {
                 this.HubConnection.invoke("GetSessionID");
             }
         });
-        this.HubConnection.on("SessionID", (sessionID, password) => {
+        this.HubConnection.on("SessionID", (sessionID) => {
             var formattedSessionID = "";
             for (var i = 0; i < sessionID.length; i += 3) {
                 formattedSessionID += sessionID.substr(i, 3) + " ";
             }
             NormalPage_1.MySessionIDInput.value = formattedSessionID.trim();
-            NormalPage_1.MyPassword.value = password;
         });
         this.HubConnection.on("SelectScreen", async (screenIndex, requesterID) => {
             var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);

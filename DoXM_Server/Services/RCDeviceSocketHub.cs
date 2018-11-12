@@ -12,7 +12,7 @@ namespace DoXM_Server.Services
 {
     public class RCDeviceSocketHub : Hub
     {
-        public static ConcurrentDictionary<string, AttendedSessionInfo> AttendedSessionList { get; set; } = new ConcurrentDictionary<string, AttendedSessionInfo>();
+        public static ConcurrentDictionary<string, string> AttendedSessionList { get; set; } = new ConcurrentDictionary<string, string>();
         public RCDeviceSocketHub(DataService dataService, 
             IHubContext<BrowserSocketHub> browserHub, 
             IHubContext<RCBrowserSocketHub> rcBrowserHub, 
@@ -102,20 +102,13 @@ namespace DoXM_Server.Services
                 sessionID += random.Next(0, 999).ToString().PadLeft(3, '0');
             }
             Context.Items["SessionID"] = sessionID;
-            Context.Items["Password"] = RNG.GenerateString(6);
 
-            var attendedSessionInfo = new AttendedSessionInfo()
-            {
-                SignalRConnectionID = Context.ConnectionId,
-                Password = Context.Items["Password"].ToString()
-            };
-
-            while (!AttendedSessionList.TryAdd(sessionID, attendedSessionInfo))
+            while (!AttendedSessionList.TryAdd(sessionID, Context.ConnectionId))
             {
                 await Task.Delay(1000);
             }
 
-            await Clients.Caller.SendAsync("SessionID", sessionID, Context.Items["Password"]);
+            await Clients.Caller.SendAsync("SessionID", sessionID);
         }
     }
 }

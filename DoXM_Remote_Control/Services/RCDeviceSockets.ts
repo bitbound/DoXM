@@ -3,7 +3,7 @@ import * as signalR from "@aspnet/signalr";
 import * as Logger from "../Services/Logger";
 import { remote } from "electron";
 import { Viewer } from "../Models/Viewer";
-import { MySessionIDInput, ViewOnlyToggle, MyPassword } from "../Pages/NormalPage";
+import { MySessionIDInput, ViewOnlyToggle } from "../Pages/NormalPage";
 import * as Robot from "robotjs";
 import { GetAbsolutePointFromPercents } from "./Utilities";
 import { RCClient } from "./RCClient";
@@ -95,13 +95,12 @@ export class RCDeviceSockets {
                 this.HubConnection.invoke("GetSessionID");
             }
         });
-        this.HubConnection.on("SessionID", (sessionID: string, password:string) => {
+        this.HubConnection.on("SessionID", (sessionID: string) => {
             var formattedSessionID = "";
             for (var i = 0; i < sessionID.length; i += 3) {
                 formattedSessionID += sessionID.substr(i, 3) + " ";
             }
             MySessionIDInput.value = formattedSessionID.trim();
-            MyPassword.value = password;
         });
         this.HubConnection.on("SelectScreen", async (screenIndex: number, requesterID: string) => {
             var viewer = RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);

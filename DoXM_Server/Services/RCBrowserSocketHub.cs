@@ -54,7 +54,7 @@ namespace DoXM_Server.Services
         {
             if (clientType == "Normal")
             {
-                clientID = RCDeviceSocketHub.AttendedSessionList[clientID].SignalRConnectionID;
+                clientID = RCDeviceSocketHub.AttendedSessionList[clientID];
             }
             await RCDeviceHub.Clients.Client(clientID).SendAsync("RTCSession", offer, Context.ConnectionId);
         }
@@ -62,11 +62,11 @@ namespace DoXM_Server.Services
         {
             if (clientType == "Normal")
             {
-                clientID = RCDeviceSocketHub.AttendedSessionList[clientID].SignalRConnectionID;
+                clientID = RCDeviceSocketHub.AttendedSessionList[clientID];
             }
             await RCDeviceHub.Clients.Client(clientID).SendAsync("IceCandidate", candidate, Context.ConnectionId);
         }
-        public async Task SendOfferRequestToDevice(string clientID, string clientPassword, string requesterName, string clientType)
+        public async Task SendOfferRequestToDevice(string clientID, string requesterName, string clientType)
         {
             if (clientType == "Normal")
             {
@@ -75,20 +75,8 @@ namespace DoXM_Server.Services
                     await Clients.Caller.SendAsync("SessionIDNotFound");
                     return;
                 }
-                if (clientPassword != RCDeviceSocketHub.AttendedSessionList[clientID].Password)
-                {
-                    if (string.IsNullOrWhiteSpace(clientPassword))
-                    {
-                        await Clients.Caller.SendAsync("AskForClientPassword", false);
-                    }
-                    else
-                    {
-                        await Clients.Caller.SendAsync("AskForClientPassword", true);
-                    }
-                
-                    return;
-                }
-                clientID = RCDeviceSocketHub.AttendedSessionList[clientID].SignalRConnectionID;
+
+                clientID = RCDeviceSocketHub.AttendedSessionList[clientID];
             }
             DataService.WriteEvent(new EventLog()
             {
@@ -97,7 +85,7 @@ namespace DoXM_Server.Services
                 Message = $"Remote control session requested by {requesterName}.  " +
                                 "Connection ID: {Context.ConnectionId}. User ID: {Context.UserIdentifier}.  " +
                                 "Login ID (if logged in): {Context?.User?.Identity?.Name}.  " +
-                                "Requester IP Address: " + Context.GetHttpContext().Connection.RemoteIpAddress.ToString()
+                                "Requester IP Address: " + Context?.GetHttpContext()?.Connection?.RemoteIpAddress?.ToString()
             });
             Context.Items["ClientID"] = clientID;
             Context.Items["ClientType"] = clientType;

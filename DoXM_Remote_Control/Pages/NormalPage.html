@@ -7,10 +7,20 @@
     <script src="../Lib/adapter.js"></script>
 </head>
 <body>
-    <div class="header">
-        <span id="doxmTitle" class="title">DoXM Remote Control</span>
-        <img src="../Assets/DoXM_Icon_Transparent.png" class="logo" />
-    </div>
+    <table class="header">
+        <tr>
+            <td style="width:50px">
+                <img src="../Assets/DoXM_Icon_Transparent.png" class="logo" />
+            </td>
+            <td>
+                <span id="doxmTitle" class="title">DoXM Remote Control</span>
+            </td>
+            <td class="align-right">
+                <button id="minimizeButton">_</button>
+                <button id="closeButton">X</button>
+            </td>
+        </tr>
+    </table>
 
     <div class="content">
         <div id="column1">
@@ -20,11 +30,6 @@
                     <label>Your Session ID:</label>
                     <br>
                     <input id="mySessionID" readonly value="Retrieving..." />
-                </div>
-                <div>
-                    <label>Your Password:</label>
-                    <br>
-                    <input id="myPassword" readonly value="Retrieving..." />
                 </div>
                 <div class="split-row">
                     <div>
@@ -126,21 +131,36 @@
             padding: 10px;
         }
 
+        .header button {
+            font-size: 10px;
+            background-color: rgb(50,50,50);
+            border-radius: 100%;
+            color: white;
+            border: 1px solid lightgray;
+            margin-right: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+        }
+
         .header {
             height: 40px;
-            line-height: 40px;
+            vertical-align: middle;
             background-color: rgb(50,50,50);
             border-bottom: 1px solid white;
-            padding: 5px 10px;
+            -webkit-app-region: drag;
+            cursor: move;
+            width: 100%;
         }
 
         .title {
             font-family: 'Courier New', Courier, monospace;
-            float: left;
             font-weight: bold;
             color: darkorange;
             text-decoration: none;
             cursor: pointer;
+            -webkit-app-region: no-drag;
+            line-height: 40px;
         }
 
         .align-right {
@@ -148,7 +168,6 @@
         }
 
         .logo {
-            float: right;
             height: 40px;
         }
 

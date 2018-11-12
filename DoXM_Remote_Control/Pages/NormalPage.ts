@@ -9,12 +9,13 @@ var host = Electron.remote.getGlobal("TargetHost");
 export var ConnectButton = document.getElementById("connectButton") as HTMLButtonElement;
 export var RequesterNameInput = document.getElementById("requesterName") as HTMLInputElement;
 export var MySessionIDInput = document.getElementById("mySessionID") as HTMLInputElement;
-export var MyPassword = document.getElementById("myPassword") as HTMLInputElement;
 export var TheirSessionIDInput = document.getElementById("theirSessionID") as HTMLInputElement;
 export var ViewerListSelect = document.getElementById("viewerList") as HTMLSelectElement;
 export var RemoveViewerButton = document.getElementById("removeViewerButton") as HTMLButtonElement;
 export var ViewOnlyToggle = document.getElementById("viewOnlyToggle") as HTMLInputElement;
 export var CopyInviteLinkButton = document.getElementById("copyInviteLinkButton") as HTMLButtonElement;
+export var MinimizeButton = document.getElementById("minimizeButton") as HTMLButtonElement;
+export var CloseButton = document.getElementById("closeButton") as HTMLButtonElement;
 
 window.onload = () => {
     document.getElementById("doxmTitle").onclick = () => {
@@ -48,6 +49,12 @@ window.onload = () => {
     document.getElementById("copyInviteLinkButton").addEventListener("click", (ev) => {
         Electron.remote.clipboard.writeText(`https://${host}/RemoteControl?sessionID=${MySessionIDInput.value.split(" ").join("")}`);
         ShowMessage("Copied to clipboard.");
+    });
+    document.getElementById("closeButton").addEventListener("click", (ev) => {
+        Electron.remote.getCurrentWindow().close();
+    });
+    document.getElementById("minimizeButton").addEventListener("click", (ev) => {
+        Electron.remote.getCurrentWindow().minimize();
     });
     RCClient.RCDeviceSockets.Connect();
 }
