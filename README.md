@@ -31,10 +31,10 @@ See Setup_Ubuntu_Builder.sh and DoXM_Server_Install.sh in Utilities.
 A TURN server is required for remote control.
 
 ### Windows
-    * Download the latest release of Pion TURN from https://github.com/pions/turn/releases.
-    * Change the variables in Register-TURNServer.ps1 in the Utilities folder.
-    * Run the script to register the start-up job.
-    * Add the TURN user credentials to the DoXM server's appsettings.json, under IceConfiguration.
+* Download the latest release of Pion TURN from https://github.com/pions/turn/releases.
+* Change the variables in Register-TURNServer.ps1 in the Utilities folder.
+* Run the script to register the start-up job.
+* Add the TURN user credentials to the DoXM server's appsettings.json, under IceConfiguration.
 
 ### Linux
 * Set up an Ubuntu server.  This will be the TURN server (using Coturn).
