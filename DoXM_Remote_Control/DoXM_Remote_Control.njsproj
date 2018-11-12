@@ -47,7 +47,6 @@
     <Content Include="build\icons\48x48.png" />
     <Content Include="build\icons\64x64.png" />
     <Content Include="build\icons\96x96.png" />
-    <Content Include="EULA.txt" />
     <Content Include="Lib\signalr\signalr.js.map" />
     <Content Include="Lib\signalr\signalr.min.js.map" />
     <Content Include="Resources\DoXM_Switch_Watch.exe" />
