@@ -18,10 +18,10 @@ $Hour = (Get-Date).Hour.ToString().PadLeft(2, "0")
 $Minute = (Get-Date).Minute.ToString().PadLeft(2, "0")
 $CurrentVersion = "$Year.$Month.$Day.$Hour$Minute"
 $ArgList = New-Object -TypeName System.Collections.ArrayList
-$HostName = $HostName
-$OutDir = $OutDir
+$HostName = ""
+$OutDir = ""
 # RIDs are described here: https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-$RID = $RID
+$RID = ""
 
 
 function Replace-LineInFile($FilePath, $MatchPattern, $ReplaceLineWith){
@@ -94,8 +94,6 @@ if ($ArgList.Contains("c")) {
     dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime win10-x64 --configuration Release
     dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime win10-x86 --configuration Release
     dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime linux-x64 --configuration Release
-    #Start-Process -FilePath $EditBin -ArgumentList "/subsystem:windows `".\bin\Release\netcoreapp2.1\win10-x64\publish\DoXM_Client.exe`"" -Wait
-    #Start-Process -FilePath $EditBin -ArgumentList "/subsystem:windows `".\bin\Release\netcoreapp2.1\win10-x86\publish\DoXM_Client.exe`"" -Wait
 
     Pop-Location
 
@@ -170,7 +168,7 @@ if ($ArgList.Contains("r")) {
 
 }
 
-if ($ArgList.Contains("s") -and (Test-Path -Path $OutDir) -eq $true) {
+if ($ArgList.Contains("s") -and $OutDir.Length -gt 0 -and (Test-Path -Path $OutDir) -eq $true) {
     Push-Location -Path ".\DoXM_Server\"
     dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime $RID --configuration Release --output $OutDir
     Pop-Location

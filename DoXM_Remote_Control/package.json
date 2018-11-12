@@ -1,7 +1,7 @@
 {
   "name": "doxm_remote_control",
   "productName": "DoXM Remote Control",
-  "version": "2018.11.09",
+  "version": "2018.11.10",
   "description": "The remote control client for DoXM.",
   "main": "Main.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "homepage": "https://doxm.app",
   "devDependencies": {
     "electron": "^2.0.12",
-    "electron-builder": "^20.31.2"
+    "electron-builder": "^20.34.0"
   },
   "dependencies": {
     "@aspnet/signalr": "^1.0.4",
@@ -29,8 +29,7 @@
     "win": {
       "icon": "build/icon.ico",
       "target": "portable",
-      "extraFiles": "Resources/DoXM_Switch_Watch.exe",
-      "requestedExecutionLevel":  "highestAvailable"
+      "extraFiles": "Resources/DoXM_Switch_Watch.exe"
     },
     "nsis": {
       "installerIcon": "build/icon.ico"

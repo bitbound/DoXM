@@ -140,7 +140,7 @@ export class RCBrowserSockets {
             UI.Prompt("Enter the password shown on the client computer:").then((password) => {
                 if (password == null) {
                     UI.ShowMessage("Connection aborted.");
-                    RemoteControl.BrowserRTC.PeerConnection.close();
+                    RemoteControl.RCBrowserSockets.Connection.stop();
                     return;
                 }
                 RemoteControl.ClientPassword = password;
