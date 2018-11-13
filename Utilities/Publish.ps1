@@ -72,9 +72,7 @@ else {
     }
 }
 
-Set-Location -Path (Get-Item -Path $MyInvocation.MyCommand.Source).Directory.Parent.FullName
-
-git pull
+Set-Location -Path (Get-Item -Path $PSScriptRoot).Parent.FullName
 
 if ($ArgList.Contains("c")) {
     # Clear publish folders.
