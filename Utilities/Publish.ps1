@@ -141,9 +141,9 @@ if ($ArgList.Contains("r")) {
     $Package | ConvertTo-Json | Out-File -FilePath ".\package.json" -Encoding ascii
    
 
-    Get-Item -Path ".\dist\*.exe" | Remove-Item -Force
+    Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" } | Remove-Item -Force
     build --win --ia32
-    Get-Item -Path ".\dist\*.exe" | Rename-Item -NewName "DoXM_Remote_Control_x86.exe" -Force
+    Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" }| Rename-Item -NewName "DoXM_Remote_Control_x86.exe" -Force
     Pop-Location
     Move-Item -Path ".\DoXM_Remote_Control\dist\DoXM_Remote_Control_x86.exe" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM_Remote_Control_x86.exe" -Force
     Get-ChildItem -Path ".\DoXM_Remote_Control\dist\win-ia32-unpacked\" | ForEach-Object {
@@ -152,7 +152,7 @@ if ($ArgList.Contains("r")) {
 
 
     Push-Location -Path ".\DoXM_Remote_Control\"
-    Get-Item -Path ".\dist\*.appimage" | Remove-Item -Force
+    Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*appimage*" } | Remove-Item -Force
 	if ($IsWindows) {
 		bash -c "build --linux"
 	}
@@ -162,7 +162,7 @@ if ($ArgList.Contains("r")) {
 	else {
 		throw "Unsupported operating system."
 	}
-    Get-Item -Path ".\dist\*.appimage" | Rename-Item -NewName "DoXM_Remote_Control.appimage" -Force
+    Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.appimage*" } | Rename-Item -NewName "DoXM_Remote_Control.appimage" -Force
     Pop-Location
     Move-Item -Path ".\DoXM_Remote_Control\dist\DoXM_Remote_Control.appimage" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM_Remote_Control.appimage" -Force
     Get-ChildItem -Path ".\DoXM_Remote_Control\dist\linux-unpacked\" | ForEach-Object {
@@ -170,9 +170,9 @@ if ($ArgList.Contains("r")) {
     }
 
     Push-Location -Path ".\DoXM_Remote_Control\"
-    Get-Item -Path ".\dist\*.exe" | Remove-Item -Force
+    Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" } | Remove-Item -Force
     build --win --x64
-    Get-Item -Path ".\dist\*.exe" | Rename-Item -NewName "DoXM_Remote_Control.exe" -Force
+    Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" } | Rename-Item -NewName "DoXM_Remote_Control.exe" -Force
     Pop-Location
     Move-Item -Path ".\DoXM_Remote_Control\dist\DoXM_Remote_Control.exe" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM_Remote_Control.exe" -Force
     Get-ChildItem -Path ".\DoXM_Remote_Control\dist\win-unpacked\" | ForEach-Object {
