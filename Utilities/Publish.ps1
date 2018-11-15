@@ -126,6 +126,11 @@ if ($ArgList.Contains("r")) {
     # Build remote control clients.
     Push-Location -Path ".\DoXM_Remote_Control\"
 
+	if (![System.IO.Directory]::Exists(".\dist"))
+	{
+		[System.IO.Directory]::CreateDirectory(".\dist");
+	}
+
     Replace-LineInFile -FilePath "Main.ts" -MatchPattern "global[`"TargetHost`"] =" -ReplaceLineWith "global[`"TargetHost`"] = `"$HostName`";"
     tsc
 

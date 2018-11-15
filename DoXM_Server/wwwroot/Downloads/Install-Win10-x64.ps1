@@ -3,8 +3,6 @@
    Installs the DoXM Client.
 .DESCRIPTION
    Do not modify this script.  It was generated specifically for your account.
-.COPYRIGHT
-   Copyright 2018 Translucency Software.  All rights reserved.
 .EXAMPLE
    powershell.exe -f Install-Win10-x64.ps1
 #>
