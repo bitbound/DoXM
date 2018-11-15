@@ -20,6 +20,8 @@ sudo apt-get install python2.7
 
 sudo apt-get install make
 
+sudo apt-get install g++
+
 sudo npm install -g electron@2.0.10 --unsafe-perm=true --allow-root
 
 sudo npm install -g typescript

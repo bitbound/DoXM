@@ -6,7 +6,7 @@ start on filesystem or runlevel [2345]
 stop on shutdown
 
 script
-    exec /usr/bin/DoXM/DoXM_Client
+    exec /usr/local/bin/DoXM/DoXM_Client
 
 end script
 EOF
