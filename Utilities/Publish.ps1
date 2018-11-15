@@ -153,7 +153,15 @@ if ($ArgList.Contains("r")) {
 
     Push-Location -Path ".\DoXM_Remote_Control\"
     Get-Item -Path ".\dist\*.appimage" | Remove-Item -Force
-    bash -c "build --linux"
+	if ($IsWindows) {
+		bash -c "build --linux"
+	}
+	elseif ($IsLinux) {
+		build --linux
+	}
+	else {
+		throw "Unsupported operating system."
+	}
     Get-Item -Path ".\dist\*.appimage" | Rename-Item -NewName "DoXM_Remote_Control.appimage" -Force
     Pop-Location
     Move-Item -Path ".\DoXM_Remote_Control\dist\DoXM_Remote_Control.appimage" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM_Remote_Control.appimage" -Force
