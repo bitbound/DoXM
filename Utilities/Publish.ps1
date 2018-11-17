@@ -74,6 +74,8 @@ else {
 
 Set-Location -Path (Get-Item -Path $PSScriptRoot).Parent.FullName
 
+git pull
+
 if ($ArgList.Contains("c")) {
     # Clear publish folders.
 	if ((Test-Path -Path ".\DoXM_Client\bin\Release\netcoreapp2.1\win10-x64\publish") -eq $true) {
