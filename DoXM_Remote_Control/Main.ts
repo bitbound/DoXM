@@ -1,7 +1,7 @@
 ﻿import { app, BrowserWindow, screen, session, ipcMain } from "electron";
 import * as Logger from "./Services/Logger";
 
-global["TargetHost"] = "localhost:5001";
+global["TargetHost"] = "my.doxm.app";
 global["Proxy"] = "";
 global["ServiceID"] = "";
 

@@ -151,9 +151,7 @@ export class Viewer {
                     stream.getTracks().forEach(track => {
                         var existingSenders = peerConnection.getSenders();
                         if (existingSenders.some(x => x.track.kind == track.kind)) {
-                            //existingSenders.find(x => x.track.kind == track.kind).replaceTrack(track);
-                            peerConnection.removeTrack(existingSenders.find(x => x.track.kind == track.kind));
-                            peerConnection.addTrack(track, stream);
+                            existingSenders.find(x => x.track.kind == track.kind).replaceTrack(track);
                         }
                         else {
                             peerConnection.addTrack(track, stream);

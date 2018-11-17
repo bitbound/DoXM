@@ -6,7 +6,7 @@
     "main":  "Main.js",
     "scripts":  {
                     "start":  "electron .",
-                    "rebuild":  "npm rebuild --runtime=electron --target=2.0.13 --disturl=https://atom.io/download/atom-shell --abi=57"
+                    "rebuild":  "npm rebuild --runtime=electron --target=3.0.9 --disturl=https://atom.io/download/atom-shell --abi=64"
                 },
     "author":  {
                    "name":  "Translucency Software",

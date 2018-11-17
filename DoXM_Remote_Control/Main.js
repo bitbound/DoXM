@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-global["TargetHost"] = "localhost:5001";
+global["TargetHost"] = "my.doxm.app";
 global["Proxy"] = "";
 global["ServiceID"] = "";
 var args = processArgs();
