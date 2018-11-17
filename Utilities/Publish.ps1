@@ -74,6 +74,7 @@ else {
 
 Set-Location -Path (Get-Item -Path $PSScriptRoot).Parent.FullName
 
+git checkout -- ./
 git pull
 
 if ($ArgList.Contains("c")) {
