@@ -1,38 +1,38 @@
 {
-    "name":  "doxm_remote_control",
-    "productName":  "DoXM Remote Control",
-    "version":  "2018.11.12",
-    "description":  "The remote control client for DoXM.",
-    "main":  "Main.js",
-    "scripts":  {
-                    "start":  "electron .",
-                    "rebuild":  "npm rebuild --runtime=electron --target=3.0.9 --disturl=https://atom.io/download/atom-shell --abi=64"
-                },
-    "author":  {
-                   "name":  "Translucency Software",
-                   "email":  "translucency_software@outlook.com",
-                   "url":  "https://lucency.co"
-               },
-    "homepage":  "https://doxm.app",
-    "devDependencies":  {
-                            "electron":  "^2.0.12",
-                            "electron-builder":  "^20.34.0"
-                        },
-    "dependencies":  {
-                         "@aspnet/signalr":  "^1.0.4",
-                         "robotjs":  "^0.5.1",
-                         "tslib":  "^1.9.3",
-                         "typescript":  "^3.1.3"
-                     },
-    "build":  {
-                  "appId":  "DoXM Remote Control",
-                  "win":  {
-                              "icon":  "build/icon.ico",
-                              "target":  "portable",
-                              "extraFiles":  "Resources/DoXM_Switch_Watch.exe"
-                          },
-                  "nsis":  {
-                               "installerIcon":  "build/icon.ico"
-                           }
-              }
+  "name": "doxm_remote_control",
+  "productName": "DoXM Remote Control",
+  "version": "2018.11.12",
+  "description": "The remote control client for DoXM.",
+  "main": "Main.js",
+  "scripts": {
+    "start": "electron .",
+    "rebuild": "npm rebuild --runtime=electron --target=3.0.9 --disturl=https://atom.io/download/atom-shell --abi=64"
+  },
+  "author": {
+    "name": "Translucency Software",
+    "email": "translucency_software@outlook.com",
+    "url": "https://lucency.co"
+  },
+  "homepage": "https://doxm.app",
+  "devDependencies": {
+    "electron": "^3.0.9",
+    "electron-builder": "^20.34.0"
+  },
+  "dependencies": {
+    "@aspnet/signalr": "^1.0.4",
+    "robotjs": "^0.5.1",
+    "tslib": "^1.9.3",
+    "typescript": "^3.1.3"
+  },
+  "build": {
+    "appId": "DoXM Remote Control",
+    "win": {
+      "icon": "build/icon.ico",
+      "target": "portable",
+      "extraFiles": "Resources/DoXM_Switch_Watch.exe"
+    },
+    "nsis": {
+      "installerIcon": "build/icon.ico"
+    }
+  }
 }

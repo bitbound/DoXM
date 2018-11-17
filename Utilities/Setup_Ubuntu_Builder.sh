@@ -5,6 +5,8 @@ sudo apt-get update
 sudo apt-get install dotnet-sdk-2.1
 sudo apt-get install git
 
+sudo add-apt-repository universe
+
 cd ~/Desktop
 git clone https://github.com/Jay-Rad/DoXM.git
 
@@ -22,7 +24,9 @@ sudo apt-get install make
 
 sudo apt-get install g++
 
-sudo npm install -g electron@2.0.10 --unsafe-perm=true --allow-root
+sudo apt-get install wine-stable
+
+sudo npm install -g electron --unsafe-perm=true --allow-root
 
 sudo npm install -g typescript
 
