@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>DoXM Remote Control</title>
+</head>
+<body>
+    <table class="header">
+        <tr>
+            <td style="width:50px">
+                <img src="../Assets/DoXM_Icon_Transparent.png" class="logo" />
+            </td>
+            <td>
+                <span id="doxmTitle" class="title">DoXM Remote Control</span>
+            </td>
+            <td class="align-right">
+                <button id="minimizeButton">_</button>
+                <button id="closeButton">X</button>
+            </td>
+        </tr>
+    </table>
+
+    <div class="content">
+        <h2>Hostname Required</h2>
+        <p>
+            Enter the hostname (plus domain) to which the remote control will connect:
+        </p>
+        <div class="align-right">
+            <input id="targetHostInput" required min="1" placeholder="Example: myserver.example.com" />
+            <br />
+            <button id="okButton">OK</button>
+        </div>
+
+    </div>
+
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        input {
+            width: calc(100% - 15px);
+            padding: 5px;
+        }
+
+        .content {
+            margin: 20px;
+        }
+
+        #okButton {
+            margin-top: 5px;
+        }
+
+        button {
+            background: white;
+            border: 2px solid dimgray;
+            padding: 7px 10px;
+            cursor: pointer;
+        }
+
+
+        button:hover {
+            background: whitesmoke;
+        }
+
+        button:active {
+            background: lightgray;
+        }
+
+
+
+        .section {
+            padding: 10px;
+        }
+
+        .header button {
+            font-size: 10px;
+            background-color: rgb(50,50,50);
+            border-radius: 100%;
+            color: white;
+            border: 1px solid lightgray;
+            margin-right: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+        }
+
+        .header {
+            height: 40px;
+            vertical-align: middle;
+            background-color: rgb(50,50,50);
+            border-bottom: 1px solid white;
+            -webkit-app-region: drag;
+            cursor: move;
+            width: 100%;
+        }
+
+        .title {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: darkorange;
+            text-decoration: none;
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+            line-height: 40px;
+        }
+
+        .align-right {
+            text-align: right;
+        }
+
+        .logo {
+            height: 40px;
+        }
+    </style>
+    <script>
+        require('./TargetHostPrompt.js');
+    </script>
+</body>
+</html>

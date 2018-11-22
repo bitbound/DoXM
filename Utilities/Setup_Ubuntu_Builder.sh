@@ -31,5 +31,3 @@ sudo npm install -g electron --unsafe-perm=true --allow-root
 sudo npm install -g typescript
 
 sudo npm install -g electron-builder
-
-cd $HOME/Desktop/Source/DoXM/DoXM_Remote_Control

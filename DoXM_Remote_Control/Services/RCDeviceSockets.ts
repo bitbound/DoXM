@@ -37,7 +37,11 @@ export class RCDeviceSockets {
             Logger.WriteLog("Connection error: " + err.toString());
             console.error(err.toString());
             remote.dialog.showErrorBox("Connection Failure", "Unable to connect to server.");
-            remote.app.exit();
+            var rcConfigPath = path.join(Electron.remote.app.getPath("userData"), "rc_config.json");
+            if (fs.existsSync(rcConfigPath)) {
+                fs.unlinkSync(rcConfigPath);
+            }
+            //remote.app.exit();
         }).then(() => {
             if ((RCClient.Mode == "Unattended" || RCClient.Mode == "DesktopSwitch") && platform() == "win32") {
                 DesktopWatcher.Watch();

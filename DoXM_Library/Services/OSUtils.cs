@@ -44,7 +44,7 @@ namespace DoXM_Library.Services
                 {
                     return "DoXM Remote Control.exe";
                 }
-                else if (OSUtils.IsLinux)
+                else if (IsLinux)
                 {
                     return "doxm_remote_control";
                 }

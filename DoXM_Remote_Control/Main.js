@@ -1,7 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-global["TargetHost"] = "my.doxm.app";
+const Logger = require("./Services/Logger");
+const fs = require("fs");
+const path = require("path");
+// If TargetHost isn't specified, the remote control will ask the
+// user for a hostname on the first run.
+global["TargetHost"] = "";
 global["Proxy"] = "";
 global["ServiceID"] = "";
 var args = processArgs();
@@ -20,6 +25,23 @@ function createNormalPage() {
     });
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(__dirname + '/Pages/NormalPage.html');
+    mainWindow.show();
+    setSessionHeaders(mainWindow.webContents.session);
+}
+function createTargetHostPromptPage() {
+    global["Mode"] = "Normal";
+    mainWindow = new electron_1.BrowserWindow({
+        width: 400,
+        height: 300,
+        minHeight: 300,
+        minWidth: 400,
+        show: false,
+        frame: false,
+        titleBarStyle: "hidden",
+        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
+    });
+    mainWindow.setMenuBarVisibility(false);
+    mainWindow.loadFile(__dirname + '/Pages/TargetHostPrompt.html');
     mainWindow.show();
     setSessionHeaders(mainWindow.webContents.session);
 }
@@ -55,19 +77,43 @@ function createUnattendedPage(mode) {
     var currentScreen = electron_1.screen.getDisplayMatching(mainWindow.getBounds());
     mainWindow.setPosition(currentScreen.workArea.width - windowWidth, currentScreen.workArea.height - windowHeight);
 }
-function createWindow() {
+async function createWindow() {
     if (args["proxy"]) {
         global["Proxy"] = args["proxy"];
     }
+    if (args["hostname"]) {
+        global["TargetHost"] = args["hostname"];
+    }
     if (args["mode"]) {
+        if (!global["TargetHost"] && !getTargetHostFromStorage()) {
+            Logger.WriteLog("No TargetHost is specified, and an unattended session was attempted.  Closing the app.");
+            electron_1.app.exit();
+            return;
+        }
         createUnattendedPage(args["mode"]);
     }
     else {
+        if (!global["TargetHost"] && !getTargetHostFromStorage()) {
+            createTargetHostPromptPage();
+            return;
+        }
         createNormalPage();
     }
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
+}
+function getTargetHostFromStorage() {
+    var rcConfigPath = path.join(electron_1.app.getPath("userData"), "rc_config.json");
+    if (fs.existsSync(rcConfigPath)) {
+        var fileContents = fs.readFileSync(rcConfigPath).toString();
+        var config = JSON.parse(fileContents);
+        if (config.TargetHost) {
+            global["TargetHost"] = config.TargetHost;
+            return true;
+        }
+    }
+    return false;
 }
 function processArgs() {
     var argDict = {};
@@ -87,6 +133,13 @@ function processArgs() {
 electron_1.ipcMain.on("SetIceConfiguration", (ev, iceConfiguration) => {
     global["IceConfiguration"] = iceConfiguration;
     ev.returnValue = "";
+});
+electron_1.ipcMain.on("SetTargetHost", (ev, targetHost) => {
+    var targetHostWindow = mainWindow;
+    global["TargetHost"] = targetHost;
+    createWindow().then(() => {
+        targetHostWindow.close();
+    });
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

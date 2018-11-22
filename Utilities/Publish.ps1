@@ -24,12 +24,17 @@ $OutDir = ""
 $RID = ""
 
 
-function Replace-LineInFile($FilePath, $MatchPattern, $ReplaceLineWith){
+function Replace-LineInFile($FilePath, $MatchPattern, $ReplaceLineWith, $MaxCount = -1){
     [string[]]$Content = Get-Content -Path $FilePath
+    $Count = 0
     for ($i = 0; $i -lt $Content.Length; $i++)
-    { 
+    {
         if ($Content[$i] -ne $null -and $Content[$i].Contains($MatchPattern)) {
             $Content[$i] = $ReplaceLineWith
+            $Count++
+        }
+        if ($MaxCount -gt 0 -and $Count -ge $MaxCount) {
+            break
         }
     }
     $Content | Out-String | Out-File -FilePath $FilePath -Force -Encoding utf8
@@ -60,7 +65,7 @@ else {
     for ($i = 0; $i -lt $args.Count; $i++)
     { 
         $arg = $args[$i].ToString().ToLower()
-        if ($arg.Contains("hostname")){
+        if ($arg.Contains("hostname")) {
             $HostName = $args[$i+1]
         }
         elseif ($arg.Contains("outdir")){
@@ -74,8 +79,6 @@ else {
 
 Set-Location -Path (Get-Item -Path $PSScriptRoot).Parent.FullName
 
-git checkout -- ./
-git pull
 
 if ($ArgList.Contains("c")) {
     # Clear publish folders.
@@ -136,7 +139,7 @@ if ($ArgList.Contains("r")) {
 		New-Item -Path "dist" -ItemType Directory
 	}
 
-    Replace-LineInFile -FilePath "Main.ts" -MatchPattern "global[`"TargetHost`"] =" -ReplaceLineWith "global[`"TargetHost`"] = `"$HostName`";"
+    Replace-LineInFile -FilePath "Main.ts" -MatchPattern "global[`"TargetHost`"] =" -ReplaceLineWith "global[`"TargetHost`"] = `"$HostName`";" -MaxCount 1
     tsc
 
     $Package = Get-Content ".\package.json" | ConvertFrom-Json
@@ -156,21 +159,22 @@ if ($ArgList.Contains("r")) {
 
     Push-Location -Path ".\DoXM_Remote_Control\"
     Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*appimage*" } | Remove-Item -Force
-	if ($IsWindows) {
-		bash -c "build --linux"
+
+    # This global variable would be true if running PowerShell Core on Linux.
+	if ($IsLinux) {
+		build
 	}
-	elseif ($IsLinux) {
-		build --linux
-	}
-	else {
-		throw "Unsupported operating system."
-	}
+    else {
+        bash -c build
+    }
+
     Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.appimage*" } | Rename-Item -NewName "DoXM_Remote_Control.appimage" -Force
     Pop-Location
     Move-Item -Path ".\DoXM_Remote_Control\dist\DoXM_Remote_Control.appimage" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM_Remote_Control.appimage" -Force
     Get-ChildItem -Path ".\DoXM_Remote_Control\dist\linux-unpacked\" | ForEach-Object {
         Compress-Archive -Path $_.FullName -DestinationPath ".\DoXM_Server\wwwroot\Downloads\RC-Linux.zip" -Update
     }
+
 
     Push-Location -Path ".\DoXM_Remote_Control\"
     Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" } | Remove-Item -Force
@@ -184,7 +188,10 @@ if ($ArgList.Contains("r")) {
 
 }
 
-if ($ArgList.Contains("s") -and $OutDir.Length -gt 0 -and (Test-Path -Path $OutDir) -eq $true) {
+if ($ArgList.Contains("s") -and $OutDir.Length -gt 0) {
+    if ((Test-Path -Path $OutDir) -eq $false){
+        New-Item -Path $OutDir -ItemType Directory
+    }
     Push-Location -Path ".\DoXM_Server\"
     dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime $RID --configuration Release --output $OutDir
     Pop-Location

@@ -134,7 +134,7 @@ namespace DoXM_Client.Services
                 }
                 var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlBinaryFileName);
                 var procInfo = new ADVAPI32.PROCESS_INFORMATION();
-                var processResult = Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode desktopswitch -viewers {String.Join(",",viewerIDs)} -serviceid {serviceID} -desktop {desktop}", desktop, true, out procInfo);
+                var processResult = Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode desktopswitch -viewers {String.Join(",",viewerIDs)} -serviceid {serviceID} -desktop {desktop} -hostname {Utilities.GetConnectionInfo().Host.Split("//").Last()}", desktop, true, out procInfo);
                 if (!processResult)
                 {
                     foreach (var viewer in viewerIDs)
@@ -165,7 +165,7 @@ namespace DoXM_Client.Services
                     if (OSUtils.IsWindows)
                     {
                         var procInfo = new ADVAPI32.PROCESS_INFORMATION();
-                        var processResult = Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode unattended -requester {requesterID} -serviceid {serviceID} -desktop default", "default", true, out procInfo);
+                        var processResult = Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode unattended -requester {requesterID} -serviceid {serviceID} -desktop default -hostname {Utilities.GetConnectionInfo().Host.Split("//").Last()}", "default", true, out procInfo);
                         if (!processResult)
                         {
                             await hubConnection.InvokeAsync("DisplayConsoleMessage", "Remote control failed to start on target machine.", requesterID);

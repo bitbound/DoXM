@@ -4,6 +4,18 @@ A remote control and remote scripting solution, built with .NET Core, Electron, 
 Website: https://doxm.app  
 Public Server: https://my.doxm.app
 
+## Pre-Built Server
+The build environment for all of DoXM's parts is rather complex and sometimes difficult to get working correctly.  If you'd prefer an easier setup, you can download a prebuilt server package from the DoXM website.
+
+The only catch is that the hostname will need to be typed into remote control client for every user the first time it's used.  That's because the target hostname isn't hard-coded into the app, and it needs to be told where to connect.
+
+* Download the a pre-built package.
+    * Windows: https://doxm.app/Downloads/DoXM_Server_Win-x64.zip
+    * Linux: https://doxm.app/Downloads/DoXM_Server_Linux-x64.zip
+* Unzip the files and put them on your web server.
+* Deploy a TURN server (instructions below).
+* Change values in appsettings.json for your environment.
+
 ## Build Instructions (Windows 10)  
 The following steps will configure your Windows 10 machine for building the DoXM server and clients.
 * Install .NET Core SDK.
@@ -19,9 +31,11 @@ The following steps will configure your Windows 10 machine for building the DoXM
     * https://www.python.org/downloads/ 
 * Install Ubuntu WSL (Windows Subsystem for Linux).
     * https://docs.microsoft.com/en-us/windows/wsl/install-win10
+    * In WSL, install the same prerequisites as in Setup_Ubuntu_Builder.sh.
     * This is required to build the Linux version of the remote control client.
 * Run Publish.ps1 in the Utilities folder.
     * The output folder will now contain the server with the clients in the Downloads folder.
+    * Change values in appsettings.json for your environment.
     * Documentation for hosting in IIS can be found here: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/index?view=aspnetcore-2.1
 
 ## Build Instructions (Linux)

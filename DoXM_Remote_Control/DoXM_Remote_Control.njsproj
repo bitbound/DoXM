@@ -4,6 +4,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>DoXM_Remote_Control</Name>
     <RootNamespace>DoXM_Remote_Control</RootNamespace>
+    <ToolsVersionPromptShown>3.0</ToolsVersionPromptShown>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -21,7 +22,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
-    <TypeScriptToolsVersion>3.0</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
     <EnableTypeScript>true</EnableTypeScript>
     <StartWebBrowser>false</StartWebBrowser>
   </PropertyGroup>
@@ -49,6 +50,9 @@
     <Content Include="build\icons\96x96.png" />
     <Content Include="Lib\signalr\signalr.js.map" />
     <Content Include="Lib\signalr\signalr.min.js.map" />
+    <Content Include="Pages\TargetHostPrompt.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="Resources\DoXM_Switch_Watch.exe" />
     <Content Include="Services\RCClient.ts" />
     <Content Include="package.json" />
@@ -63,6 +67,7 @@
     <TypeScriptCompile Include="Main.ts" />
     <TypeScriptCompile Include="Models\Viewer.ts" />
     <TypeScriptCompile Include="Pages\NormalPage.ts" />
+    <TypeScriptCompile Include="Pages\TargetHostPrompt.ts" />
     <TypeScriptCompile Include="Pages\UnattendedPage.ts" />
     <TypeScriptCompile Include="Services\DesktopWatcher.ts" />
     <TypeScriptCompile Include="Services\Logger.ts" />
