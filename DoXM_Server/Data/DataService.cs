@@ -16,14 +16,12 @@ namespace DoXM_Server.Data
         public DataService(
                 ApplicationDbContext context,
                 ApplicationConfig appConfig,
-                UserManager<DoXMUser> userManager,
-                EmailSender emailSender
+                UserManager<DoXMUser> userManager
             )
         {
             DoXMContext = context;
             AppConfig = appConfig;
             UserManager = userManager;
-            EmailSender = emailSender;
         }
 
         internal DoXMUserOptions GetUserOptions(string userName)
@@ -129,7 +127,6 @@ namespace DoXM_Server.Data
 
         private ApplicationConfig AppConfig { get; set; }
         private ApplicationDbContext DoXMContext { get; set; }
-        private EmailSender EmailSender { get; set; }
         private UserManager<DoXMUser> UserManager { get; set; }
         public void AddOrUpdateCommandContext(CommandContext commandContext)
         {
@@ -372,6 +369,23 @@ namespace DoXM_Server.Data
         public void WriteEvent(EventLog eventLog)
         {
             DoXMContext.EventLogs.Add(eventLog);
+            DoXMContext.SaveChanges();
+        }
+        public void WriteEvent(Exception ex)
+        {
+            var error = ex;
+            while (error != null)
+            {
+                DoXMContext.EventLogs.Add(new EventLog()
+                {
+                    EventType = EventTypes.Error,
+                    Message = error.Message,
+                    Source = error.Source,
+                    StackTrace = error.StackTrace,
+                    TimeStamp = DateTime.Now
+                });
+                error = ex.InnerException;
+            }
             DoXMContext.SaveChanges();
         }
 

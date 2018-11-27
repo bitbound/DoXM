@@ -85,8 +85,8 @@ namespace DoXM_Server
                     options.PayloadSerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
                 });
             services.AddLogging();
-            services.AddSingleton<IEmailSender, EmailSender>();
-            services.AddSingleton<EmailSender>();
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<EmailSender>();
             services.AddScoped<DataService>();
             services.AddSingleton<ApplicationConfig>();
             services.AddSingleton<RandomGenerator>();
