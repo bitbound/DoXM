@@ -83,9 +83,9 @@ namespace DoXM_Server.Services
                 EventType = EventTypes.Info,
                 TimeStamp = DateTime.Now,
                 Message = $"Remote control session requested by {requesterName}.  " +
-                                "Connection ID: {Context.ConnectionId}. User ID: {Context.UserIdentifier}.  " +
-                                "Login ID (if logged in): {Context?.User?.Identity?.Name}.  " +
-                                "Requester IP Address: " + Context?.GetHttpContext()?.Connection?.RemoteIpAddress?.ToString()
+                                $"Connection ID: {Context.ConnectionId}. User ID: {Context.UserIdentifier}.  " +
+                                $"Login ID (if logged in): {Context?.User?.Identity?.Name}.  " +
+                                $"Requester IP Address: " + Context?.GetHttpContext()?.Connection?.RemoteIpAddress?.ToString()
             });
             Context.Items["ClientID"] = clientID;
             Context.Items["ClientType"] = clientType;
