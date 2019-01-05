@@ -2,7 +2,7 @@ HostName=
 Organization=
 GUID=$(cat /proc/sys/kernel/random/uuid)
 
-if [ $1 = "--uninstall" ]; then
+if [ "$1" = "--uninstall" ]; then
 	service stop doxm-client
     rm -r -f /usr/local/bin/DoXM
 	rm -f /etc/systemd/system/doxm-client.service
@@ -14,7 +14,7 @@ apt-get install unzip
 mkdir -p /usr/local/bin/DoXM/
 cd /usr/local/bin/DoXM/
 
-if [ $1 = "--path" ]; then
+if [ "$1" = "--path" ]; then
     echo  "Copying install files..."
 	cp $2 /usr/local/bin/DoXM/DoXM-Linux.zip
 	exit
@@ -26,17 +26,18 @@ fi
 unzip ./DoXM-Linux.zip
 chmod +x ./DoXM_Client
 
-read -r -d '' connectionInfo << EOF
+cat > ./ConnectionInfo.json << EOL
 {
 	"MachineID":"$GUID", 
 	"Host":"$HostName",
 	"OrganizationID": "$Organization",
 	"ServerVerificationToken":""
 }
-EOF
-connectionInfo > ./ConnectionInfo.json
+EOL
 
-read -r -d '' doxmConfig << EOF
+echo Creating service...
+
+cat > /etc/systemd/system/doxm-client.service << EOL
 [Unit]
 Description=The DoXM service client used for remote access.
 
@@ -51,7 +52,8 @@ SyslogIdentifier=doxm-client
 
 [Install]
 WantedBy=multi-user.target
-EOF
-$doxmConfig > /etc/systemd/system/doxm-client.service
+EOL
 
 systemctl enable doxm-client.service
+
+echo Install complete.

@@ -83,15 +83,15 @@ namespace DoXM_Library.Models
                     DriveType = x.DriveType,
                     Name = x.Name,
                     RootDirectory = x.RootDirectory.FullName,
-                    FreeSpace = x.TotalFreeSpace / x.TotalSize,
-                    TotalSize = Math.Round((double)(x.TotalSize / 1024 / 1024 / 1024), 2),
+                    FreeSpace = x.TotalFreeSpace > 0 && x.TotalSize > 0 ? x.TotalFreeSpace / x.TotalSize : 0,
+                    TotalSize = x.TotalSize > 0 ? Math.Round((double)(x.TotalSize / 1024 / 1024 / 1024), 2) : 0,
                     VolumeLabel = x.VolumeLabel
                 }).ToList(),
                 OrganizationID = connectionInfo.OrganizationID,
                 CurrentUser = GetCurrentUser()
             };
 
-            if (systemDrive != null)
+            if (systemDrive != null && systemDrive.TotalSize > 0 && systemDrive.TotalFreeSpace > 0)
             {
                 machine.TotalStorage = Math.Round((double)(systemDrive.TotalSize / 1024 / 1024 / 1024), 2);
                 var freeStorage = Math.Round((double)(systemDrive.TotalFreeSpace / 1024 / 1024 / 1024), 2);

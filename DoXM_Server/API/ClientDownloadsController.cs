@@ -59,8 +59,8 @@ namespace DoXM_Server.API
                         var hostIndex = fileContents.IndexOf("HostName=");
                         var orgIndex = fileContents.IndexOf("Organization");
 
-                        fileContents[hostIndex] = $"HostName={Request.Scheme}://{Request.Host}";
-                        fileContents[orgIndex] = $"Organization={user.Organization.ID}";
+                        fileContents[hostIndex] = $"HostName=\"{Request.Scheme}://{Request.Host}\"";
+                        fileContents[orgIndex] = $"Organization=\"{user.Organization.ID}\"";
                         break;
                     }
                     
