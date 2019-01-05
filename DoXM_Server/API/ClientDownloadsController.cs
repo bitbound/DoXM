@@ -37,16 +37,33 @@ namespace DoXM_Server.API
             {
                 case "Win10-x64":
                 case "Win10-x86":
-                    fileName = $"Install-{platformID}.ps1";
+                    {
+                        fileName = $"Install-{platformID}.ps1";
 
-                    fileContents.AddRange(System.IO.File.ReadAllLines(Path.Combine(HostEnv.WebRootPath, "Downloads", $"{fileName}")));
+                        fileContents.AddRange(System.IO.File.ReadAllLines(Path.Combine(HostEnv.WebRootPath, "Downloads", $"{fileName}")));
+
+                        var hostIndex = fileContents.IndexOf("[string]$HostName = $null");
+                        var orgIndex = fileContents.IndexOf("[string]$Organization = $null");
+
+                        fileContents[hostIndex] = $"[string]$HostName = \"{Request.Scheme}://{Request.Host}\"";
+                        fileContents[orgIndex] = $"[string]$Organization = \"{user.Organization.ID}\"";
+                        break;
+                    }
+                   
+                case "Linux-x64":
+                    {
+                        fileName = "Install-Linux-x64.sh";
+
+                        fileContents.AddRange(System.IO.File.ReadAllLines(Path.Combine(HostEnv.WebRootPath, "Downloads", $"{fileName}")));
+
+                        var hostIndex = fileContents.IndexOf("HostName=");
+                        var orgIndex = fileContents.IndexOf("Organization");
+
+                        fileContents[hostIndex] = $"HostName={Request.Scheme}://{Request.Host}";
+                        fileContents[orgIndex] = $"Organization={user.Organization.ID}";
+                        break;
+                    }
                     
-                    var hostIndex = fileContents.IndexOf("[string]$HostName = $null");
-                    var orgIndex = fileContents.IndexOf("[string]$Organization = $null");
-
-                    fileContents[hostIndex] = $"[string]$HostName = \"{Request.Scheme}://{Request.Host}\"";
-                    fileContents[orgIndex] = $"[string]$Organization = \"{user.Organization.ID}\"";
-                    break;
                 default:
                     return BadRequest();
             }

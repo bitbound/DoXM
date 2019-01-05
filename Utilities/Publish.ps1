@@ -119,12 +119,12 @@ if ($ArgList.Contains("c")) {
     Move-Item -Path ".\DoXM_Client\bin\Release\netcoreapp2.1\win10-x86\publish\DoXM-win10-x86.zip" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM-win10-x86.zip" -Force
 
     Push-Location -Path ".\DoXM_Client\bin\Release\netcoreapp2.1\linux-x64\publish"
-    Compress-Archive -Path ".\*" -DestinationPath "DoXM-linux.zip" -CompressionLevel Optimal -Force
-    while ((Test-Path -Path ".\DoXM-linux.zip") -eq $false){
+    Compress-Archive -Path ".\*" -DestinationPath "DoXM-Linux.zip" -CompressionLevel Optimal -Force
+    while ((Test-Path -Path ".\DoXM-Linux.zip") -eq $false){
         Start-Sleep -Seconds 1
     }
     Pop-Location
-    Move-Item -Path ".\DoXM_Client\bin\Release\netcoreapp2.1\linux-x64\publish\DoXM-linux.zip" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM-linux.zip" -Force
+    Move-Item -Path ".\DoXM_Client\bin\Release\netcoreapp2.1\linux-x64\publish\DoXM-Linux.zip" -Destination ".\DoXM_Server\wwwroot\Downloads\DoXM-Linux.zip" -Force
 
 }
 

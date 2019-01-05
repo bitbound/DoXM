@@ -96,38 +96,58 @@
         </p>
     </div>
 
-        <div class="col-sm-6  well-sm">
-            <h6>Windows 10 32-Bit</h6>
-            <p>
-                <strong>Download:</strong>
-                <br />
-                <a href="/API/ClientDownloads/Win10-x86">Windows 10 x86 PowerShell Installer</a>
-                <br />
-                <a href="~/Downloads/DoXM-win10-x86.zip">Windows 10 x86 Files Only</a>
-            </p>
-            <p>
-                <strong>Install:</strong>
-                <br />
-                <span class="label label-default code">powershell -f [path]\Install-Win10-x86.ps1</span>
-            </p>
-            <p>
-                <strong>Local Install:</strong>
-                <span data-toggle="modal" data-target="#localInstallInfo" class="glyphicon glyphicon-question-sign pointer"></span>
-                <br />
-                <span class="label label-default code">powershell -f [path]\Install-Win10-x86.ps1 -path \\[path]\DoXM-win10-x86.zip</span>
-            </p>
-            <p>
-                <strong>Uninstall:</strong>
-                <br />
-                <span class="label label-default code">powershell -f [path]\Install-Win10-x86.ps1 -uninstall</span>
-            </p>
-        </div>
-        <div class="col-sm-6  well-sm">
-            <h6>Linux 64-Bit</h6>
-            <p>
-                Coming soon!
-            </p>
-        </div>
+    <div class="col-sm-6  well-sm">
+        <h6>Windows 10 32-Bit</h6>
+        <p>
+            <strong>Download:</strong>
+            <br />
+            <a href="/API/ClientDownloads/Win10-x86">Windows 10 x86 PowerShell Installer</a>
+            <br />
+            <a href="~/Downloads/DoXM-win10-x86.zip">Windows 10 x86 Files Only</a>
+        </p>
+        <p>
+            <strong>Install:</strong>
+            <br />
+            <span class="label label-default code">powershell -f [path]\Install-Win10-x86.ps1</span>
+        </p>
+        <p>
+            <strong>Local Install:</strong>
+            <span data-toggle="modal" data-target="#localInstallInfo" class="glyphicon glyphicon-question-sign pointer"></span>
+            <br />
+            <span class="label label-default code">powershell -f [path]\Install-Win10-x86.ps1 -path \\[path]\DoXM-win10-x86.zip</span>
+        </p>
+        <p>
+            <strong>Uninstall:</strong>
+            <br />
+            <span class="label label-default code">powershell -f [path]\Install-Win10-x86.ps1 -uninstall</span>
+        </p>
+    </div>
+    <div class="col-sm-6  well-sm">
+        <h6>Linux 64-Bit</h6>
+        <p>
+            <strong>Download:</strong>
+            <br />
+            <a href="/API/ClientDownloads/Linux-x64">Linux x64 Bash Installer</a>
+            <br />
+            <a href="~/Downloads/DoXM-Linux.zip">Linux x64 Files Only</a>
+        </p>
+        <p>
+            <strong>Install:</strong>
+            <br />
+            <span class="label label-default code">sudo [path]\Install-Linux-x64.sh</span>
+        </p>
+        <p>
+            <strong>Local Install:</strong>
+            <span data-toggle="modal" data-target="#localInstallInfo" class="glyphicon glyphicon-question-sign pointer"></span>
+            <br />
+            <span class="label label-default code">sudo [path]\Install-Linux-x64.sh --path \\[path]\DoXM-win10-x86.zip</span>
+        </p>
+        <p>
+            <strong>Uninstall:</strong>
+            <br />
+            <span class="label label-default code">sudo [path]\Install-Linux-x64.sh --uninstall</span>
+        </p>
+    </div>
     }
     else
     {

@@ -28,7 +28,7 @@ namespace DoXM_Server.API
                     fileName = "DoXM-win10-x64.zip";
                     break;
                 case "Linux":
-                    fileName = "DoXM-linux.zip";
+                    fileName = "DoXM-Linux.zip";
                     break;
                 default:
                     return "";
