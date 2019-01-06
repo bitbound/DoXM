@@ -132,7 +132,7 @@ namespace DoXM_Client.Services
                     Uninstaller.UninstallClient();
                     return;
                 }
-                var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlBinaryFileName);
+                var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
                 var procInfo = new ADVAPI32.PROCESS_INFORMATION();
                 var processResult = Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode desktopswitch -viewers {String.Join(",",viewerIDs)} -serviceid {serviceID} -desktop {desktop} -hostname {Utilities.GetConnectionInfo().Host.Split("//").Last()}", desktop, true, out procInfo);
                 if (!processResult)
@@ -155,8 +155,9 @@ namespace DoXM_Client.Services
                 {
                     var latestVersion = await Updater.GetLatestRCVersion();
 
-                    var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlBinaryFileName);
-                    if (!File.Exists(rcBinaryPath) || FileVersionInfo.GetVersionInfo(rcBinaryPath)?.FileVersion?.ToString() != latestVersion)
+                    var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
+                    var fileVersion = FileVersionInfo.GetVersionInfo(rcBinaryPath)?.FileVersion;
+                    if (!File.Exists(rcBinaryPath) || (!string.IsNullOrWhiteSpace(fileVersion) && fileVersion?.ToString() != latestVersion))
                     {
                         await hubConnection.InvokeAsync("DisplayConsoleMessage", "A new version needs to be downloaded on the client machine.", requesterID);
                         await Updater.DownloadLatestRCVersion(hubConnection, requesterID);

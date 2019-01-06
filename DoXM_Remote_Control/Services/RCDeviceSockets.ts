@@ -41,7 +41,7 @@ export class RCDeviceSockets {
             if (fs.existsSync(rcConfigPath)) {
                 fs.unlinkSync(rcConfigPath);
             }
-            //remote.app.exit();
+            remote.app.exit();
         }).then(() => {
             if ((RCClient.Mode == "Unattended" || RCClient.Mode == "DesktopSwitch") && platform() == "win32") {
                 DesktopWatcher.Watch();

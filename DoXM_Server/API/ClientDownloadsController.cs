@@ -33,6 +33,7 @@ namespace DoXM_Server.API
             var user = DataService.GetUserByName(User.Identity.Name);
             var fileContents = new List<string>();
             var fileName = "";
+            var fileBytes = new byte[0];
             switch (platformID)
             {
                 case "Win10-x64":
@@ -47,6 +48,7 @@ namespace DoXM_Server.API
 
                         fileContents[hostIndex] = $"[string]$HostName = \"{Request.Scheme}://{Request.Host}\"";
                         fileContents[orgIndex] = $"[string]$Organization = \"{user.Organization.ID}\"";
+                        fileBytes = System.Text.Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, fileContents));
                         break;
                     }
                    
@@ -57,18 +59,17 @@ namespace DoXM_Server.API
                         fileContents.AddRange(System.IO.File.ReadAllLines(Path.Combine(HostEnv.WebRootPath, "Downloads", $"{fileName}")));
 
                         var hostIndex = fileContents.IndexOf("HostName=");
-                        var orgIndex = fileContents.IndexOf("Organization");
+                        var orgIndex = fileContents.IndexOf("Organization=");
 
                         fileContents[hostIndex] = $"HostName=\"{Request.Scheme}://{Request.Host}\"";
                         fileContents[orgIndex] = $"Organization=\"{user.Organization.ID}\"";
+                        fileBytes = System.Text.Encoding.UTF8.GetBytes(string.Join("\n", fileContents));
                         break;
                     }
                     
                 default:
                     return BadRequest();
             }
-
-            var fileBytes = System.Text.Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, fileContents));
 
             return File(fileBytes, "application/octet-stream", $"{fileName}");
         }

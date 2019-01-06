@@ -48,7 +48,7 @@ namespace DoXM_Client.Services
 
         private Bash()
         {
-            var psi = new ProcessStartInfo("cmd.exe");
+            var psi = new ProcessStartInfo("bash");
             psi.WindowStyle = ProcessWindowStyle.Hidden;
             psi.Verb = "RunAs";
             psi.UseShellExecute = false;

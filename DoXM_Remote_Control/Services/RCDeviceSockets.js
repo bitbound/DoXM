@@ -39,7 +39,7 @@ class RCDeviceSockets {
             if (fs.existsSync(rcConfigPath)) {
                 fs.unlinkSync(rcConfigPath);
             }
-            //remote.app.exit();
+            electron_1.remote.app.exit();
         }).then(() => {
             if ((RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") && os_1.platform() == "win32") {
                 DesktopWatcher.Watch();

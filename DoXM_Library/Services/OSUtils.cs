@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace DoXM_Library.Services
@@ -20,23 +21,23 @@ namespace DoXM_Library.Services
                 return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             }
         }
-        public static string BinaryFileExt
+        public static string ClientExecutableFileName
         {
             get
             {
                 string fileExt = "";
                 if (IsWindows)
                 {
-                    fileExt = "exe";
+                    fileExt = "DoXM_Client.exe";
                 }
                 else if (IsLinux)
                 {
-                    fileExt = "appimage";
+                    fileExt = "DoXM_Client";
                 }
                 return fileExt;
             }
         }
-        public static string RemoteControlBinaryFileName
+        public static string RemoteControlExecutableFileName
         {
             get
             {
@@ -125,6 +126,23 @@ namespace DoXM_Library.Services
             {
                 return OSPlatform.Create("Unknown");
             }
+        }
+
+        public static string StartProcessWithResults(string command, string arguments)
+        {
+            var psi = new ProcessStartInfo(command, arguments);
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.Verb = "RunAs";
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+
+            var proc = new Process();
+            proc.StartInfo = psi;
+
+            proc.Start();
+            proc.WaitForExit();
+
+            return proc.StandardOutput.ReadToEnd();
         }
     }
 }

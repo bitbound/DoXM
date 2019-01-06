@@ -3,6 +3,7 @@ using Microsoft.Management.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -65,7 +66,9 @@ namespace DoXM_Library.Models
             }
             else
             {
-                systemDrive = DriveInfo.GetDrives().Where(x => x.IsReady).FirstOrDefault();
+                systemDrive = DriveInfo.GetDrives().FirstOrDefault(x => 
+                    x.IsReady &&
+                    x.RootDirectory.FullName == Path.GetPathRoot(Environment.CurrentDirectory));
             }
 
             var machine = new Machine()
@@ -83,7 +86,7 @@ namespace DoXM_Library.Models
                     DriveType = x.DriveType,
                     Name = x.Name,
                     RootDirectory = x.RootDirectory.FullName,
-                    FreeSpace = x.TotalFreeSpace > 0 && x.TotalSize > 0 ? x.TotalFreeSpace / x.TotalSize : 0,
+                    FreeSpace = x.TotalSize > 0 ? x.TotalFreeSpace / x.TotalSize : 0,
                     TotalSize = x.TotalSize > 0 ? Math.Round((double)(x.TotalSize / 1024 / 1024 / 1024), 2) : 0,
                     VolumeLabel = x.VolumeLabel
                 }).ToList(),
@@ -98,12 +101,30 @@ namespace DoXM_Library.Models
                 machine.FreeStorage = freeStorage / machine.TotalStorage;
             }
 
-            var totalMemory = GetMemoryInGB();
-            machine.FreeMemory = totalMemory.Item1 / totalMemory.Item2;
+            Tuple<double, double> totalMemory = new Tuple<double, double>(0, 0);
+
+            if (OSUtils.IsWindows)
+            {
+                totalMemory = GetWinMemoryInGB();
+            }
+            else if (OSUtils.IsLinux)
+            {
+                totalMemory = GetLinxMemoryInGB();
+            }
+          
+            if (totalMemory.Item2 > 0)
+            {
+                machine.FreeMemory = totalMemory.Item1 / totalMemory.Item2;
+            }
+            else
+            {
+                machine.FreeMemory = 0;
+            }
             machine.TotalMemory = totalMemory.Item2;
 
             return machine;
         }
+
 
         private static string GetCurrentUser()
         {
@@ -127,22 +148,54 @@ namespace DoXM_Library.Models
             }
         }
 
-        private static Tuple<double, double> GetMemoryInGB()
+        private static Tuple<double, double> GetWinMemoryInGB()
         {
             try
             {
                 var session = CimSession.Create(null);
                 var cimOS = session.EnumerateInstances("root\\cimv2", "CIM_OperatingSystem");
-                var free = (ulong)(cimOS.FirstOrDefault()?.CimInstanceProperties["FreePhysicalMemory"]?.Value ?? 1);
+                var free = (ulong)(cimOS.FirstOrDefault()?.CimInstanceProperties["FreePhysicalMemory"]?.Value ?? 0);
                 var freeGB = Math.Round(((double)free / 1024 / 1024), 2);
-                var total = (ulong)(cimOS.FirstOrDefault()?.CimInstanceProperties["TotalVisibleMemorySize"]?.Value ?? 1);
+                var total = (ulong)(cimOS.FirstOrDefault()?.CimInstanceProperties["TotalVisibleMemorySize"]?.Value ?? 0);
                 var totalGB = Math.Round(((double)total / 1024 / 1024), 2);
 
                 return new Tuple<double, double>(freeGB, totalGB);
             }
             catch
             {
-                return new Tuple<double, double>(1, 1);
+                return new Tuple<double, double>(0, 0);
+            }
+        }
+        private static Tuple<double, double> GetLinxMemoryInGB()
+        {
+            try
+            {
+                var results = OSUtils.StartProcessWithResults("cat", "/proc/meminfo");
+                var resultsArr = results.Split('n');
+                var freeKB = resultsArr
+                            .FirstOrDefault(x => x.StartsWith("FreeMem"))
+                            .Split(" ".ToCharArray(), 2)
+                            .Last() // 9168236 kB
+                            .Trim()
+                            .Split(' ')
+                            .First(); // 9168236
+
+                var totalKB = resultsArr
+                            .FirstOrDefault(x => x.StartsWith("MemTotal"))
+                            .Split(" ".ToCharArray(), 2)
+                            .Last() // 16637468 kB
+                            .Trim()
+                            .Split(' ')
+                            .First(); // 16637468
+
+                var freeGB = Math.Round((double.Parse(freeKB) / 1024 / 1024), 2);
+                var totalGB = Math.Round((double.Parse(totalKB) / 1024 / 1024), 2);
+
+                return new Tuple<double, double>(freeGB, totalGB);
+            }
+            catch
+            {
+                return new Tuple<double, double>(0, 0);
             }
         }
     }

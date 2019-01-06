@@ -69,7 +69,7 @@ namespace DoXM_Client.Services
                     ZipFile.ExtractToDirectory(tempFile, Path.Combine(Path.GetTempPath(), "DoXM_Update"), true);
                     var psi = new ProcessStartInfo()
                     {
-                        FileName = Path.Combine(Path.GetTempPath(), "DoXM_Update", "DoXM_Client." + OSUtils.BinaryFileExt),
+                        FileName = Path.Combine(Path.GetTempPath(), "DoXM_Update", OSUtils.ClientExecutableFileName),
                         Arguments = "-update true",
                         Verb = "RunAs"
                     };
@@ -176,6 +176,10 @@ namespace DoXM_Client.Services
             }
             await hubConnection.InvokeAsync("DisplayConsoleMessage", "Extracting files...", requesterID);
             ZipFile.ExtractToDirectory(downloadFilePath, Path.Combine(Utilities.AppDataDir, "remote_control"), true);
+            if (OSUtils.IsLinux)
+            {
+                Process.Start("chmod", "755 " + Path.Combine(Utilities.AppDataDir, "remote_control", "doxm_remote_control"));
+            }
         }
     }
 }

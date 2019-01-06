@@ -14,6 +14,7 @@
     <Content Remove="wwwroot\scripts\BrowserSockets.ts" />
     <Content Remove="wwwroot\scripts\CommandCompletion.ts" />
     <Content Remove="wwwroot\scripts\CommandProcessor.ts" />
+    <Content Remove="wwwroot\scripts\Commands\BashCommands.ts" />
     <Content Remove="wwwroot\scripts\Commands\CMDCommands.ts" />
     <Content Remove="wwwroot\scripts\Commands\DoXMCommands.ts" />
     <Content Remove="wwwroot\scripts\Commands\PSCoreCommands.ts" />
@@ -1502,6 +1503,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="wwwroot\lib\types\jquery\index.d.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\CommandCompletion.ts" />
+    <TypeScriptCompile Include="wwwroot\scripts\Commands\BashCommands.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\Commands\WinPSCommands.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\Commands\CMDCommands.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\Commands\DoXMCommands.ts" />

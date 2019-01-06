@@ -2,6 +2,7 @@ import { DoXMCommands } from "./Commands/DoXMCommands.js";
 import { UserSettings } from "./UserSettings.js";
 import { CMDCommands } from "./Commands/CMDCommands.js";
 import { PSCoreCommands } from "./Commands/PSCoreCommands.js";
+import { BashCommands } from "./Commands/BashCommands.js";
 import { Main } from "./Main.js";
 import { CommandLineParameter } from "./Models/CommandLineParameter.js";
 import * as UI from "./UI.js";
@@ -74,6 +75,9 @@ export function GetCommandCompletions(commandText) {
         case "WinPS":
             commandList = WinPSCommands;
             break;
+        case "Bash":
+            commandList = BashCommands;
+            break;
         default:
             UI.CommandCompletionDiv.classList.add("hidden");
             return;
@@ -91,6 +95,8 @@ export function GetCommandModeShortcut() {
             return "PSCore";
         case UserSettings.CommandModeShortcuts.WinPS:
             return "WinPS";
+        case UserSettings.CommandModeShortcuts.Bash:
+            return "Bash";
         default:
             return null;
     }
