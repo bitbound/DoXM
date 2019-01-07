@@ -2,10 +2,11 @@ HostName=
 Organization=
 GUID=$(cat /proc/sys/kernel/random/uuid)
 
+systemctl stop doxm-client
+rm -r -f /usr/local/bin/DoXM
+rm -f /etc/systemd/system/doxm-client.service
+
 if [ "$1" = "--uninstall" ]; then
-	service stop doxm-client
-    rm -r -f /usr/local/bin/DoXM
-	rm -f /etc/systemd/system/doxm-client.service
 	exit
 fi
 
@@ -55,5 +56,6 @@ WantedBy=multi-user.target
 EOL
 
 systemctl enable doxm-client.service
+systemctl start doxm-client.service
 
 echo Install complete.

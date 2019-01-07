@@ -154,10 +154,23 @@ namespace DoXM_Client.Services
                 try
                 {
                     var latestVersion = await Updater.GetLatestRCVersion();
-
                     var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
-                    var fileVersion = FileVersionInfo.GetVersionInfo(rcBinaryPath)?.FileVersion;
-                    if (!File.Exists(rcBinaryPath) || (!string.IsNullOrWhiteSpace(fileVersion) && fileVersion?.ToString() != latestVersion))
+                    var shouldUpdate = false;
+
+                    if (!File.Exists(rcBinaryPath))
+                    {
+                        shouldUpdate = true;
+                    }
+                    else
+                    {
+                        var fileVersion = FileVersionInfo.GetVersionInfo(rcBinaryPath)?.FileVersion;
+                        if (!string.IsNullOrWhiteSpace(fileVersion) && fileVersion?.ToString() != latestVersion)
+                        {
+                            shouldUpdate = true;
+                        }
+                    }
+                    
+                    if (shouldUpdate)
                     {
                         await hubConnection.InvokeAsync("DisplayConsoleMessage", "A new version needs to be downloaded on the client machine.", requesterID);
                         await Updater.DownloadLatestRCVersion(hubConnection, requesterID);
