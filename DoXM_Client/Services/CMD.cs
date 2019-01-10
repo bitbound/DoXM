@@ -12,6 +12,12 @@ namespace DoXM_Client.Services
     public class CMD
     {
         private static ConcurrentDictionary<string, CMD> Sessions { get; set; } = new ConcurrentDictionary<string, CMD>();
+        private string ConnectionID { get; set; }
+
+        private string LastInputID { get; set; }
+        private bool OutputDone { get; set; }
+        private string StandardOut { get; set; }
+        private string ErrorOut { get; set; }
         private System.Timers.Timer ProcessIdleTimeout { get; set; }
         public static CMD GetCurrent(string connectionID)
         {
@@ -25,25 +31,29 @@ namespace DoXM_Client.Services
             else
             {
                 var cmd = new CMD();
+                cmd.ConnectionID = connectionID;
                 cmd.ProcessIdleTimeout = new System.Timers.Timer(600000); // 10 minutes.
                 cmd.ProcessIdleTimeout.AutoReset = false;
-                cmd.ProcessIdleTimeout.Elapsed += (sender, args) =>
-                {
-                    CMD outResult;
-                    while (!Sessions.TryRemove(connectionID, out outResult))
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                    }
-                    outResult.CMDProc.Kill();
-                };
+                cmd.ProcessIdleTimeout.Elapsed += cmd.ProcessIdleTimeout_Elapsed;
                 while (!Sessions.TryAdd(connectionID, cmd))
                 {
-                    System.Threading.Thread.Sleep(1000);
+                    Thread.Sleep(1000);
                 }
                 cmd.ProcessIdleTimeout.Start();
                 return cmd;
             }
         }
+
+        private void ProcessIdleTimeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            CMD outResult;
+            while (!Sessions.TryRemove(ConnectionID, out outResult))
+            {
+                Thread.Sleep(1000);
+            }
+            outResult.CMDProc.Kill();
+        }
+
         private Process CMDProc { get; }
 
         private CMD()
@@ -98,26 +108,47 @@ namespace DoXM_Client.Services
                 OutputDone = false;
                 CMDProc.StandardInput.WriteLine(input);
                 CMDProc.StandardInput.WriteLine("echo " + commandID);
+                var startWait = DateTime.Now;
                 while (!OutputDone)
                 {
+                    if (DateTime.Now - startWait > TimeSpan.FromSeconds(30))
+                    {
+                        return GeneratePartialResult();
+                    }
                     Thread.Sleep(1);
                 }
+                return GenerateCompletedResult();
             }
+           
+        }
+
+        private GenericCommandResult GeneratePartialResult()
+        {
+            OutputDone = true;
+            var partialResult = new GenericCommandResult()
+            {
+                CommandContextID = LastInputID,
+                MachineID = Utilities.GetConnectionInfo().MachineID,
+                CommandType = "CMD",
+                StandardOutput = StandardOut,
+                ErrorOutput = "WARNING: The command execution froze and was forced to return before finishing.  " +
+                    "The results may be partial, and the console process has been reset." + Environment.NewLine + ErrorOut
+            };
+            ProcessIdleTimeout_Elapsed(this, null);
+            return partialResult;
+        }
+
+        private GenericCommandResult GenerateCompletedResult()
+        {
             return new GenericCommandResult()
             {
-                CommandContextID = commandID,
+                CommandContextID = LastInputID,
                 MachineID = Utilities.GetConnectionInfo().MachineID,
                 CommandType = "CMD",
                 StandardOutput = StandardOut,
                 ErrorOutput = ErrorOut
             };
         }
-
-
-        private string LastInputID { get; set; }
-        private bool OutputDone { get; set; }
-        private string StandardOut { get; set; }
-        private string ErrorOut { get; set; }
 
     }
 }

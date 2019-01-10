@@ -137,10 +137,13 @@ namespace DoXM_Library.Models
                     var username = computerSystem.FirstOrDefault().CimInstanceProperties["UserName"].Value ?? "";
                     return username as string;
                 }
-                else
+                else if (OSUtils.IsLinux)
                 {
-                    return Environment.UserDomainName + "\\" + Environment.UserName;
+                    var users = OSUtils.StartProcessWithResults("users", "");
+                    var username = users?.Split()?.FirstOrDefault()?.Trim();
+                    return $"{Environment.UserDomainName}\\{username}";
                 }
+                throw new Exception("Unsupported operating system.");
             }
             catch
             {

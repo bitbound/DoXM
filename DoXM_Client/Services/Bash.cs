@@ -11,7 +11,14 @@ namespace DoXM_Client.Services
     public class Bash
     {
         private static ConcurrentDictionary<string, Bash> Sessions { get; set; } = new ConcurrentDictionary<string, Bash>();
+        private Process BashProc { get; }
         private System.Timers.Timer ProcessIdleTimeout { get; set; }
+        private string ConnectionID { get; set; }
+        private string LastInputID { get; set; }
+        private bool OutputDone { get; set; }
+        private string StandardOut { get; set; }
+        private string ErrorOut { get; set; }
+
         public static Bash GetCurrent(string connectionID)
         {
             if (Sessions.ContainsKey(connectionID))
@@ -24,27 +31,30 @@ namespace DoXM_Client.Services
             else
             {
                 var bash = new Bash();
+                bash.ConnectionID = connectionID;
                 bash.ProcessIdleTimeout = new System.Timers.Timer(600000); // 10 minutes.
                 bash.ProcessIdleTimeout.AutoReset = false;
-                bash.ProcessIdleTimeout.Elapsed += (sender, args) =>
-                {
-                    Bash outResult;
-                    while (!Sessions.TryRemove(connectionID, out outResult))
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                    }
-                    outResult.BashProc.Kill();
-                };
+                bash.ProcessIdleTimeout.Elapsed += bash.ProcessIdleTimeout_Elapsed;
                 while (!Sessions.TryAdd(connectionID, bash))
                 {
-                    System.Threading.Thread.Sleep(1000);
+                    Thread.Sleep(1000);
                 }
                 bash.ProcessIdleTimeout.Start();
                 return bash;
             }
         }
-        
-        private Process BashProc { get; }
+
+        private void ProcessIdleTimeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Bash outResult;
+            while (!Sessions.TryRemove(ConnectionID, out outResult))
+            {
+                Thread.Sleep(1000);
+            }
+            outResult.BashProc.Kill();
+        }
+
+
 
         private Bash()
         {
@@ -98,14 +108,40 @@ namespace DoXM_Client.Services
                 OutputDone = false;
                 BashProc.StandardInput.WriteLine(input);
                 BashProc.StandardInput.WriteLine("echo " + commandID);
+                var startWait = DateTime.Now;
                 while (!OutputDone)
                 {
+                    if (DateTime.Now - startWait > TimeSpan.FromSeconds(30))
+                    {
+                        return GeneratePartialResult();
+                    }
                     Thread.Sleep(1);
                 }
             }
+            return GenerateCompletedResult();
+        }
+
+        private GenericCommandResult GeneratePartialResult()
+        {
+            OutputDone = true;
+            var partialResult =  new GenericCommandResult()
+            {
+                CommandContextID = LastInputID,
+                MachineID = Utilities.GetConnectionInfo().MachineID,
+                CommandType = "Bash",
+                StandardOutput = StandardOut,
+                ErrorOutput = "WARNING: The command execution froze and was forced to return before finishing.  " +
+                    "The results may be partial, and the console process has been reset." + Environment.NewLine + ErrorOut
+            };
+            ProcessIdleTimeout_Elapsed(this, null);
+            return partialResult;
+        }
+
+        private GenericCommandResult GenerateCompletedResult()
+        {
             return new GenericCommandResult()
             {
-                CommandContextID = commandID,
+                CommandContextID = LastInputID,
                 MachineID = Utilities.GetConnectionInfo().MachineID,
                 CommandType = "Bash",
                 StandardOutput = StandardOut,
@@ -113,10 +149,5 @@ namespace DoXM_Client.Services
             };
         }
 
-
-        private string LastInputID { get; set; }
-        private bool OutputDone { get; set; }
-        private string StandardOut { get; set; }
-        private string ErrorOut { get; set; }
     }
 }

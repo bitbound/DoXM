@@ -1,11 +1,11 @@
-﻿import { app, BrowserWindow, screen, session, ipcMain } from "electron";
+import { app, BrowserWindow, screen, session, ipcMain } from "electron";
 import * as Logger from "./Services/Logger";
 import * as fs from "fs";
 import * as path from "path";
 
 // If TargetHost isn't specified, the remote control will ask the
 // user for a hostname on the first run.
-global["TargetHost"] = "";
+global["TargetHost"] = "my.doxm.app";
 global["Proxy"] = "";
 global["ServiceID"] = "";
 
@@ -173,3 +173,13 @@ function setSessionHeaders(currentSession: Electron.Session) {
         })
     })
 }
+
+
+
+
+
+
+
+
+
+

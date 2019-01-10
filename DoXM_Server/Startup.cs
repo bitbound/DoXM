@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.SignalR;
 using DoXM_Library.Models;
 using Microsoft.AspNetCore.Http.Connections;
 using DoXM_Library.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace DoXM_Server
 {
@@ -105,12 +106,17 @@ namespace DoXM_Server
             {
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
-                app.UseHttpsRedirection();
+                //app.UseHttpsRedirection();
             }
 
             ConfigureStaticFiles(app);
             
             app.UseCookiePolicy();
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseAuthentication();
 

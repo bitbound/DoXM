@@ -240,6 +240,9 @@ export function ApplyInputHandlers(sockets, rtc) {
         var key = e.key.toLowerCase();
         sockets.SendKeyUp(key);
     });
+    window.addEventListener("click", function (e) {
+        ScreenViewer.muted = false;
+    });
     window.ondragover = function (e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = "copy";

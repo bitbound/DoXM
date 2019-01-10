@@ -175,10 +175,17 @@ namespace DoXM_Client.Services
                 await Task.Delay(100);
             }
             await hubConnection.InvokeAsync("DisplayConsoleMessage", "Extracting files...", requesterID);
-            ZipFile.ExtractToDirectory(downloadFilePath, Path.Combine(Utilities.AppDataDir, "remote_control"), true);
+            if (OSUtils.IsWindows)
+            {
+                ZipFile.ExtractToDirectory(downloadFilePath, Path.Combine(Utilities.AppDataDir, "remote_control"), true);
+            }
             if (OSUtils.IsLinux)
             {
-                Process.Start("chmod", "755 " + Path.Combine(Utilities.AppDataDir, "remote_control", "doxm_remote_control"));
+                // ZipFile doesn't extract nested directories properly on Linux, so...
+                Directory.SetCurrentDirectory(rcDir);
+                Process.Start("apt-get", "install unzip").WaitForExit();
+                Process.Start("unzip", $"-o {fileName}").WaitForExit();
+                Process.Start("chmod", "755 " + Path.Combine(Utilities.AppDataDir, "remote_control", "doxm_remote_control")).WaitForExit();
             }
         }
     }

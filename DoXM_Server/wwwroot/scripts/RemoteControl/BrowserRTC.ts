@@ -1,6 +1,5 @@
 ﻿import { RCBrowserSockets } from "./RCBrowserSockets.js";
 import * as UI from "./UI.js";
-import { StatusMessage } from "./UI.js";
 import * as Utilities from "../Utilities.js";
 import { RemoteControl } from "./RemoteControl.js";
 
@@ -26,7 +25,7 @@ export class BrowserRTC {
                     UI.ConnectBox.style.removeProperty("display");
                     UI.ConnectButton.removeAttribute("disabled");
                     UI.ScreenViewer.srcObject = null;
-                    StatusMessage.innerHTML = "Connection closed.";
+                    UI.StatusMessage.innerHTML = "Connection closed.";
                     break;
                 default:
                     break;
@@ -40,7 +39,7 @@ export class BrowserRTC {
                     UI.ConnectBox.style.removeProperty("display");
                     UI.ConnectButton.removeAttribute("disabled");
                     UI.ScreenViewer.srcObject = null;
-                    StatusMessage.innerHTML = "Connection closed.";
+                    UI.StatusMessage.innerHTML = "Connection closed.";
                     break;
                 default:
                     break;

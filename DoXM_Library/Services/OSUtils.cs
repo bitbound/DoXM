@@ -90,11 +90,11 @@ namespace DoXM_Library.Services
                 {
                     if (Environment.Is64BitOperatingSystem)
                     {
-                        return "DoXM-win10-x64.zip";
+                        return "DoXM-Win10-x64.zip";
                     }
                     else
                     {
-                        return "DoXM-win10-x86.zip";
+                        return "DoXM-Win10-x86.zip";
                     }
 
                 }

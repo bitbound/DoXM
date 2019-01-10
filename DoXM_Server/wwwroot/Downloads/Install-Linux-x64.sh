@@ -5,6 +5,7 @@ GUID=$(cat /proc/sys/kernel/random/uuid)
 systemctl stop doxm-client
 rm -r -f /usr/local/bin/DoXM
 rm -f /etc/systemd/system/doxm-client.service
+systemctl daemon-reload
 
 if [ "$1" = "--uninstall" ]; then
 	exit
@@ -46,16 +47,15 @@ Description=The DoXM service client used for remote access.
 WorkingDirectory=/usr/local/bin/DoXM/
 ExecStart=/usr/local/bin/DoXM/DoXM_Client
 Restart=always
-# Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
-KillSignal=SIGINT
-SyslogIdentifier=doxm-client
+Environment=DISPLAY=:0
+#Environment="XAUTHORITY=/home/user/.Xauthority"
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target
 EOL
 
-systemctl enable doxm-client.service
-systemctl start doxm-client.service
+systemctl enable doxm-client
+systemctl start doxm-client
 
 echo Install complete.

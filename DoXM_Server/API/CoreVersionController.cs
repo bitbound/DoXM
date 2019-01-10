@@ -25,7 +25,7 @@ namespace DoXM_Server.API
             switch (platform)
             {
                 case "Windows":
-                    fileName = "DoXM-win10-x64.zip";
+                    fileName = "DoXM-Win10-x64.zip";
                     break;
                 case "Linux":
                     fileName = "DoXM-Linux.zip";

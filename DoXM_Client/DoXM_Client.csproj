@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Copyright>Copyright ©  2018 Translucency Software</Copyright>
     <Description>Background service that maintains a connection to the DoXM server.  The service is used for remote support and maintenance by this computer's administrators.</Description>
@@ -16,18 +16,18 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Management.Infrastructure" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.0.4" />
-    <PackageReference Include="Microsoft.PowerShell.Commands.Diagnostics" Version="6.1.0" />
-    <PackageReference Include="Microsoft.PowerShell.Commands.Management" Version="6.1.0" />
-    <PackageReference Include="Microsoft.PowerShell.Commands.Utility" Version="6.1.0" />
-    <PackageReference Include="Microsoft.PowerShell.CoreCLR.Eventing" Version="6.1.0" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.1.0" />
-    <PackageReference Include="Microsoft.PowerShell.Security" Version="6.1.0" />
-    <PackageReference Include="Microsoft.WSMan.Management" Version="6.1.0" />
-    <PackageReference Include="Microsoft.WSMan.Runtime" Version="6.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0" />
+    <PackageReference Include="Microsoft.PowerShell.Commands.Diagnostics" Version="6.1.1" />
+    <PackageReference Include="Microsoft.PowerShell.Commands.Management" Version="6.1.1" />
+    <PackageReference Include="Microsoft.PowerShell.Commands.Utility" Version="6.1.1" />
+    <PackageReference Include="Microsoft.PowerShell.CoreCLR.Eventing" Version="6.1.1" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.1.1" />
+    <PackageReference Include="Microsoft.PowerShell.Security" Version="6.1.1" />
+    <PackageReference Include="Microsoft.WSMan.Management" Version="6.1.1" />
+    <PackageReference Include="Microsoft.WSMan.Runtime" Version="6.1.1" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="System.Management.Automation" Version="6.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="System.Management.Automation" Version="6.1.1" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
   </ItemGroup>
 

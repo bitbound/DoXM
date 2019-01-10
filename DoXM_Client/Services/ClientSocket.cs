@@ -185,9 +185,12 @@ namespace DoXM_Client.Services
                             await hubConnection.InvokeAsync("DisplayConsoleMessage", "Remote control failed to start on target machine.", requesterID);
                         }
                     }
-                    else
+                    else if (OSUtils.IsLinux)
                     {
-                        Process.Start(rcBinaryPath, $"-requester {requesterID}");
+                        var users = OSUtils.StartProcessWithResults("users", "");
+                        var username = users?.Split()?.FirstOrDefault()?.Trim();
+
+                        Process.Start("sudo", $"-u {username} {rcBinaryPath} -mode unattended -requester {requesterID} -serviceid {serviceID} -desktop default -hostname {Utilities.GetConnectionInfo().Host.Split("//").Last()}");
                     }
                 }
                 catch

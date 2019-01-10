@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Text;
 
@@ -35,6 +36,15 @@ namespace DoXM_Client.Services
                             }}
                         ");
                 ps.Invoke();
+            }
+            else if (OSUtils.IsLinux)
+            {
+                var users = OSUtils.StartProcessWithResults("users", "");
+                var username = users?.Split()?.FirstOrDefault()?.Trim();
+                Process.Start("systemctl", "stop doxm-client").WaitForExit();
+                Directory.Delete("/usr/local/bin/DoXM", true);
+                File.Delete("/etc/systemd/system/doxm-client.service");
+                Process.Start("systemctl", "daemon-reload").WaitForExit();
             }
         }
     }

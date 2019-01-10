@@ -98,16 +98,16 @@ function Install-DoXM {
 		Write-Log "Copying install files..."
 		$SourceIndex = $ArgList.IndexOf("-path") + 1
 		$SourcePath = $ArgList[$SourceIndex].Replace("`"", "").Replace("'", "")
-		Copy-Item -Path $ArgList[$SourceIndex] -Destination "$InstallPath\DoXM-win10-x86.zip"
+		Copy-Item -Path $ArgList[$SourceIndex] -Destination "$InstallPath\DoXM-Win10-x86.zip"
 	}
 	else {
 		$ProgressPreference = 'SilentlyContinue'
 		Write-Log "Downloading client..."
-		Invoke-WebRequest -Uri "$HostName/Downloads/DoXM-win10-x86.zip" -OutFile "$InstallPath\DoXM-win10-x86.zip"
+		Invoke-WebRequest -Uri "$HostName/Downloads/DoXM-Win10-x86.zip" -OutFile "$InstallPath\DoXM-Win10-x86.zip"
 		$ProgressPreference = 'Continue'
 
 	}
-	Expand-Archive -Path "$InstallPath\DoXM-win10-x86.zip" "$InstallPath"  -Force
+	Expand-Archive -Path "$InstallPath\DoXM-Win10-x86.zip" "$InstallPath"  -Force
 
 	New-Item -ItemType File -Path "$InstallPath\ConnectionInfo.json" -Value (ConvertTo-Json -InputObject $ConnectionInfo) -Force
 

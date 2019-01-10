@@ -11,7 +11,12 @@ namespace DoXM_Client.Services
     public class WindowsPS
     {
         private static ConcurrentDictionary<string, WindowsPS> Sessions { get; set; } = new ConcurrentDictionary<string, WindowsPS>();
+        private string ConnectionID { get; set; }
         private System.Timers.Timer ProcessIdleTimeout { get; set; }
+        private string LastInputID { get; set; }
+        private bool OutputDone { get; set; }
+        private string StandardOut { get; set; }
+        private string ErrorOut { get; set; }
         public static WindowsPS GetCurrent(string connectionID)
         {
             if (Sessions.ContainsKey(connectionID))
@@ -24,25 +29,29 @@ namespace DoXM_Client.Services
             else
             {
                 var winPS = new WindowsPS();
+                winPS.ConnectionID = connectionID;
                 winPS.ProcessIdleTimeout = new System.Timers.Timer(600000); // 10 minutes.
                 winPS.ProcessIdleTimeout.AutoReset = false;
-                winPS.ProcessIdleTimeout.Elapsed += (sender, args) =>
-                {
-                    WindowsPS outResult;
-                    while (!Sessions.TryRemove(connectionID, out outResult))
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                    }
-                    outResult.PSProc.Kill();
-                };
+                winPS.ProcessIdleTimeout.Elapsed += winPS.ProcessIdleTimeout_Elapsed;
                 while (!Sessions.TryAdd(connectionID, winPS))
                 {
-                    System.Threading.Thread.Sleep(1000);
+                    Thread.Sleep(1000);
                 }
                 winPS.ProcessIdleTimeout.Start();
                 return winPS;
             }
         }
+
+        private void ProcessIdleTimeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            WindowsPS outResult;
+            while (!Sessions.TryRemove(ConnectionID, out outResult))
+            {
+                Thread.Sleep(1000);
+            }
+            outResult.PSProc.Kill();
+        }
+
         private Process PSProc { get; }
 
         private WindowsPS()
@@ -96,25 +105,46 @@ namespace DoXM_Client.Services
                 OutputDone = false;
                 PSProc.StandardInput.WriteLine(input);
                 PSProc.StandardInput.WriteLine("echo " + commandID);
+                var startWait = DateTime.Now;
                 while (!OutputDone)
                 {
+                    if (DateTime.Now - startWait > TimeSpan.FromSeconds(30))
+                    {
+                        return GeneratePartialResult();
+                    }
                     Thread.Sleep(1);
                 }
             }
 
+            return GenerateCompletedResult();
+        }
+
+        private GenericCommandResult GeneratePartialResult()
+        {
+            OutputDone = true;
+            var partialResult = new GenericCommandResult()
+            {
+                CommandContextID = LastInputID,
+                MachineID = Utilities.GetConnectionInfo().MachineID,
+                CommandType = "WinPS",
+                StandardOutput = StandardOut,
+                ErrorOutput = "WARNING: The command execution froze and was forced to return before finishing.  " +
+                    "The results may be partial, and the console process has been reset." + Environment.NewLine + ErrorOut
+            };
+            ProcessIdleTimeout_Elapsed(this, null);
+            return partialResult;
+        }
+
+        private GenericCommandResult GenerateCompletedResult()
+        {
             return new GenericCommandResult()
             {
-                CommandContextID = commandID,
+                CommandContextID = LastInputID,
                 MachineID = Utilities.GetConnectionInfo().MachineID,
                 CommandType = "WinPS",
                 StandardOutput = StandardOut,
                 ErrorOutput = ErrorOut
             };
         }
-
-        private string LastInputID { get; set; }
-        private bool OutputDone { get; set; }
-        private string StandardOut { get; set; }
-        private string ErrorOut { get; set; }
     }
 }
