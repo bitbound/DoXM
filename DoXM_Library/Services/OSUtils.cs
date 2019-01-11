@@ -100,7 +100,7 @@ namespace DoXM_Library.Services
                 }
                 else if (OSUtils.IsLinux)
                 {
-                    return "DoXM-linux.zip";
+                    return "DoXM-Linux.zip";
                 }
                 else
                 {

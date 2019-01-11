@@ -37,6 +37,11 @@ cat > ./ConnectionInfo.json << EOL
 }
 EOL
 
+echo Enter the username whose Xauthority file will be used.
+echo Note: This user will need to be logged in for the remote control session to work.
+echo This value can be changed later in /etc/systemd/system/doxm-client.service.
+read -p 'User: ' user
+
 echo Creating service...
 
 cat > /etc/systemd/system/doxm-client.service << EOL
@@ -49,7 +54,7 @@ ExecStart=/usr/local/bin/DoXM/DoXM_Client
 Restart=always
 RestartSec=10
 Environment=DISPLAY=:0
-#Environment="XAUTHORITY=/home/user/.Xauthority"
+Environment="XAUTHORITY=/home/$user/.Xauthority"
 
 [Install]
 WantedBy=graphical.target

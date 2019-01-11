@@ -12,13 +12,13 @@ export function Connect() {
         .withUrl("/BrowserHub")
         .configureLogging(signalR.LogLevel.Information)
         .build();
+    applyMessageHandlers(Connection);
     Connection.start().catch(err => {
         console.error(err.toString());
         Connected = false;
         UI.AddConsoleOutput("Your connection was lost.  Refresh the page or enter a command to reconnect.");
     }).then(() => {
         Connected = true;
-        applyMessageHandlers(Connection);
     });
     this.Connection.closedCallbacks.push((ev) => {
         Connected = false;

@@ -132,7 +132,8 @@ namespace DoXM_Client.Services
                 CommandType = "CMD",
                 StandardOutput = StandardOut,
                 ErrorOutput = "WARNING: The command execution froze and was forced to return before finishing.  " +
-                    "The results may be partial, and the console process has been reset." + Environment.NewLine + ErrorOut
+                    "The results may be partial, and the console process has been reset." +
+                    "Please note that interactive commands aren't supported." + Environment.NewLine + ErrorOut
             };
             ProcessIdleTimeout_Elapsed(this, null);
             return partialResult;
