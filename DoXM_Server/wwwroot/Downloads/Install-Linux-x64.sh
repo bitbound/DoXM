@@ -19,7 +19,6 @@ cd /usr/local/bin/DoXM/
 if [ "$1" = "--path" ]; then
     echo  "Copying install files..."
 	cp $2 /usr/local/bin/DoXM/DoXM-Linux.zip
-	exit
 else
     echo  "Downloading client..."
 	wget $HostName/Downloads/DoXM-Linux.zip

@@ -47,7 +47,6 @@ sudo nginx -s reload
 
 
 # Create service.
-sudo nano /etc/systemd/system/doxm.service
 
 read -r -d '' serviceConfig << EOF
 [Unit]
