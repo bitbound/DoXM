@@ -32,7 +32,6 @@ export class RCDeviceSockets {
             .build();
 
         this.ApplyMessageHandlers();
-
         this.HubConnection.start().catch(err => {
             Logger.WriteLog("Connection error: " + err.toString());
             console.error(err.toString());

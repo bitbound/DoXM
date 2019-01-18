@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 // If TargetHost isn't specified, the remote control will ask the
 // user for a hostname on the first run.
-global["TargetHost"] = "my.doxm.app";
+global["TargetHost"] = "";
 global["Proxy"] = "";
 global["ServiceID"] = "";
 var args = processArgs();

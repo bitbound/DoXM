@@ -3,19 +3,16 @@ read -p "Enter app host (e.g. example.com): " appHost
 
 
 
-# Install .NET Core.
-sudo curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
+# Install .NET Core Runtime.
+curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
 
 
 
 # Install Nginx
-sudo -s
-nginx=stable
-add-apt-repository ppa:nginx/$nginx
 apt-get update
 apt-get install nginx
 
-sudo service nginx start
+systemctl start nginx
 
 
 # Configure Nginx
@@ -35,13 +32,15 @@ server {
     }
 }
 EOF
-$nginxConfig > /etc/nginx/sites-available/default
+$nginxConfig > /etc/nginx/sites-available/doxm
+
+ln -s /etc/nginx/sites-available/doxm /etc/nginx/sites-enabled/doxm
 
 # Test config.
-sudo nginx -t
+nginx -t
 
 # Reload.
-sudo nginx -s reload
+nginx -s reload
 
 
 
@@ -54,7 +53,7 @@ Description=DoXM Server
 
 [Service]
 WorkingDirectory=$appRoot
-ExecStart=/usr/bin/dotnet $appRoot/doxm_server.dll
+ExecStart=/usr/bin/dotnet $appRoot/DoXM_Server.dll
 Restart=always
 # Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
@@ -73,15 +72,9 @@ echo $serviceConfig > /etc/systemd/system/doxm.service
 systemctl enable doxm.service
 # Start service.
 systemctl start doxm.service
-# Check service status
-systemctl status doxm.service
 
 
 # Install Certbot and get SSL cert.
-sudo apt-get update
-sudo apt-get install software-properties-common
-sudo add-apt-repository ppa:certbot/certbot
-sudo apt-get update
-sudo apt-get install python-certbot-nginx 
+apt-get install certbot
 
-sudo certbot --nginx
+certbot --nginx

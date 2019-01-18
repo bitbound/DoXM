@@ -106,17 +106,12 @@ namespace DoXM_Server
             {
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
-                //app.UseHttpsRedirection();
+                app.UseHttpsRedirection();
             }
 
             ConfigureStaticFiles(app);
             
             app.UseCookiePolicy();
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
 
             app.UseAuthentication();
 

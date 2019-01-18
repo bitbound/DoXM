@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DoXM_Server.Migrations
@@ -55,7 +56,7 @@ namespace DoXM_Server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -196,7 +197,8 @@ namespace DoXM_Server.Migrations
                     TotalStorage = table.Column<double>(nullable: false),
                     FreeMemory = table.Column<double>(nullable: false),
                     CurrentUser = table.Column<string>(nullable: true),
-                    Tags = table.Column<string>(maxLength: 200, nullable: true)
+                    Tags = table.Column<string>(maxLength: 200, nullable: true),
+                    ServerVerificationToken = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -236,7 +238,7 @@ namespace DoXM_Server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -376,7 +378,8 @@ namespace DoXM_Server.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -412,7 +415,8 @@ namespace DoXM_Server.Migrations
                 name: "UserNameIndex",
                 table: "DoXMUsers",
                 column: "NormalizedUserName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Drives_MachineID",
