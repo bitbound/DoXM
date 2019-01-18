@@ -82,7 +82,6 @@ namespace DoXM_Client.Services
             catch (Exception ex)
             {
                 Logger.Write(ex);
-                Environment.Exit(1);
             }
         }
         internal static void CoreUpdate()

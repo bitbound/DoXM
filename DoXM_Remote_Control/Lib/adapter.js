@@ -3642,23 +3642,13 @@ module.exports = {
     navigator.getDisplayMedia = function(constraints) {
       return getSourceId(constraints)
         .then(function(sourceId) {
-          var widthSpecified = constraints.video && constraints.video.width;
-          var heightSpecified = constraints.video && constraints.video.height;
-          var frameRateSpecified = constraints.video &&
-            constraints.video.frameRate;
           constraints.video = {
             mandatory: {
               chromeMediaSource: 'desktop',
               chromeMediaSourceId: sourceId,
-              maxFrameRate: frameRateSpecified || 3
+              maxFrameRate: constraints.video.frameRate || 3
             }
           };
-          if (widthSpecified) {
-            constraints.video.mandatory.maxWidth = widthSpecified;
-          }
-          if (heightSpecified) {
-            constraints.video.mandatory.maxHeight = heightSpecified;
-          }
           return navigator.mediaDevices.getUserMedia(constraints);
         });
     };
