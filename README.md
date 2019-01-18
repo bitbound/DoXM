@@ -27,7 +27,7 @@ The following steps will configure your Windows 10 machine for building the DoXM
     * Documentation for hosting in IIS can be found here: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/index?view=aspnetcore-2.1
 
 ## Build Instructions (Linux)
-See Setup_Ubuntu_Builder.sh and DoXM_Server_Install.sh in Utilities.  You'll 
+See Setup_Ubuntu_Builder.sh and DoXM_Server_Install.sh in Utilities.
 
 ## TURN Server  
 A TURN server is required for remote control.
