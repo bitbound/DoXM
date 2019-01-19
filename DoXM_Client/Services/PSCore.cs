@@ -57,6 +57,7 @@ namespace DoXM_Client.Services
 
         public PSCoreCommandResult WriteInput(string input, string commandID)
         {
+            PS.Commands.Clear();
             PS.AddScript(input);
             var results = PS.Invoke();
            

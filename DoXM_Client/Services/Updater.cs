@@ -67,6 +67,10 @@ namespace DoXM_Client.Services
                     wc.DownloadFile(new Uri(Utilities.GetConnectionInfo().Host + $"/Downloads/{fileName}"), tempFile);
                     Logger.Write($"Service Updater: Extracting files.");
                     ZipFile.ExtractToDirectory(tempFile, Path.Combine(Path.GetTempPath(), "DoXM_Update"), true);
+                    if (OSUtils.IsLinux)
+                    {
+                        Process.Start("sudo", $"chmod -R 777 {Path.Combine(Path.GetTempPath(), "DoXM_Update")}").WaitForExit();
+                    }
                     var psi = new ProcessStartInfo()
                     {
                         FileName = Path.Combine(Path.GetTempPath(), "DoXM_Update", OSUtils.ClientExecutableFileName),

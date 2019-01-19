@@ -62,7 +62,7 @@ export function DisplayParameterCompletions(command: ConsoleCommand, parameters:
         commandCompletionItem.innerHTML = param.Name;
         commandCompletionItem.onclick = function (e: MouseEvent) {
             var preParam = UI.ConsoleTextArea.value.substring(0, UI.ConsoleTextArea.value.lastIndexOf(" "));
-            UI.ConsoleTextArea.value = preParam.trim() + ` -${commandCompletionItem.innerText} `;
+            UI.ConsoleTextArea.value = preParam.trim() + ` -${commandCompletionItem.innerText}`;
             UI.CommandCompletionDiv.classList.add("hidden");
             UI.CommandInfoDiv.classList.add("hidden");
         };
