@@ -32,12 +32,17 @@ namespace DoXM_Client
                 return settings;
             };
 
+
+            if (argDict.ContainsKey("update"))
+            {
+                Updater.CoreUpdate();
+            }
+
             if (argDict.TryGetValue("mode", out var mode) && mode == "remotecontrol")
             {
                 var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
                 var procInfo = new ADVAPI32.PROCESS_INFORMATION();
                 var desktop = Win32Interop.GetCurrentDesktop();
-                Logger.Write("Desktop is " + desktop);
                 Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode unattended -requester {argDict["requester"]} -serviceid {argDict["serviceid"]} -desktop {desktop} -hostname {Utilities.GetConnectionInfo().Host.Split("//").Last()}", $"{desktop}", true, out procInfo);
                 Environment.Exit(0);
             }
@@ -50,11 +55,6 @@ namespace DoXM_Client
             else
             {
                 ClientSocket.Connect();
-            }
-
-            if (argDict.ContainsKey("update"))
-            {
-                Updater.CoreUpdate();
             }
            
             while (true)

@@ -38,14 +38,15 @@ namespace DoXM_Client.Services
         {
             try
             {
+                if (OSUtils.IsLinux)
+                {
+                    return;
+                }
+
                 var platform = "";
                 if (OSUtils.IsWindows)
                 {
                     platform = "Windows";
-                }
-                else if (OSUtils.IsLinux)
-                {
-                    platform = "Linux";
                 }
                 else
                 {
@@ -66,20 +67,22 @@ namespace DoXM_Client.Services
                     }
                     wc.DownloadFile(new Uri(Utilities.GetConnectionInfo().Host + $"/Downloads/{fileName}"), tempFile);
                     Logger.Write($"Service Updater: Extracting files.");
-                    ZipFile.ExtractToDirectory(tempFile, Path.Combine(Path.GetTempPath(), "DoXM_Update"), true);
-                    if (OSUtils.IsLinux)
+                   
+                    
+                    if (OSUtils.IsWindows)
                     {
-                        Process.Start("sudo", $"chmod -R 777 {Path.Combine(Path.GetTempPath(), "DoXM_Update")}").WaitForExit();
-                    }
-                    var psi = new ProcessStartInfo()
-                    {
-                        FileName = Path.Combine(Path.GetTempPath(), "DoXM_Update", OSUtils.ClientExecutableFileName),
-                        Arguments = "-update true",
-                        Verb = "RunAs"
-                    };
+                        var updateDir = Path.Combine(Path.GetTempPath(), "DoXM_Update");
+                        ZipFile.ExtractToDirectory(tempFile, Path.Combine(Path.GetTempPath(), "DoXM_Update"), true);
+                        var psi = new ProcessStartInfo()
+                        {
+                            FileName = Path.Combine(Path.GetTempPath(), "DoXM_Update", OSUtils.ClientExecutableFileName),
+                            Arguments = "-update true",
+                            Verb = "RunAs"
+                        };
 
-                    Logger.Write($"Service Updater: Launching new process.");
-                    Process.Start(psi);
+                        Logger.Write($"Service Updater: Launching new process.");
+                        Process.Start(psi);
+                    }
                     Environment.Exit(0);
                 }
             }
@@ -92,6 +95,11 @@ namespace DoXM_Client.Services
         {
             try
             {
+                if (OSUtils.IsLinux)
+                {
+                    return;
+                }
+
                 Logger.Write("Service Updater: Starting update.");
                 var ps = PowerShell.Create();
                 if (OSUtils.IsWindows)
@@ -100,6 +108,7 @@ namespace DoXM_Client.Services
                     ps.Invoke();
                     ps.Commands.Clear();
                 }
+
                 ps.AddScript(@"
                     Get-Process | Where-Object {
                         $_.Name -like ""DoXM_Client"" -and 
@@ -110,6 +119,7 @@ namespace DoXM_Client.Services
 
                 Logger.Write("Service Updater: Gathering files.");
                 var targetDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "DoXM");
+ 
                 var itemList = Directory.GetFileSystemEntries(Path.Combine(Path.GetTempPath(), "DoXM_Update"));
                 Logger.Write("Service Updater: Copying new files.");
                 foreach (var item in itemList)
@@ -132,19 +142,22 @@ namespace DoXM_Client.Services
                         Logger.Write(ex);
                     }
                 }
-                Logger.Write("Service Updater: Starting service.");
-                ps.AddScript("Start-Service -Name \"DoXM_Service\"");
-                ps.Invoke();
                 Logger.Write("Service Updater: Update completed.");
-                Environment.Exit(0);
             }
             catch (Exception ex)
             {
-                Logger.Write(ex);
-                var ps = PowerShell.Create();
-                ps.AddScript("Start-Process -Name \"DoXM_Service\"");
-                ps.Invoke();
-                Environment.Exit(1);
+                Logger.Write(ex);               
+            }
+            finally
+            {
+                Logger.Write("Service Updater: Starting service.");
+                if (OSUtils.IsWindows)
+                {
+                    var ps = PowerShell.Create();
+                    ps.AddScript("Start-Service -Name \"DoXM_Service\"");
+                    ps.Invoke();
+                }
+                Environment.Exit(0);
             }
         }
         internal static async Task DownloadLatestRCVersion(HubConnection hubConnection, string requesterID)
