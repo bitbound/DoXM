@@ -1,10 +1,13 @@
 ﻿using DoXM_Client.Client;
 using DoXM_Client.Services;
 using DoXM_Library.Services;
+using DoXM_Library.Win32;
+using DoXM_Library.Win32_Classes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading.Tasks;
@@ -28,6 +31,16 @@ namespace DoXM_Client
                 };
                 return settings;
             };
+
+            if (argDict.TryGetValue("mode", out var mode) && mode == "remotecontrol")
+            {
+                var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
+                var procInfo = new ADVAPI32.PROCESS_INFORMATION();
+                var desktop = Win32Interop.GetCurrentDesktop();
+                Logger.Write("Desktop is " + desktop);
+                Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode unattended -requester {argDict["requester"]} -serviceid {argDict["serviceid"]} -desktop {desktop} -hostname {Utilities.GetConnectionInfo().Host.Split("//").Last()}", $"{desktop}", true, out procInfo);
+                Environment.Exit(0);
+            }
 
             if (OSUtils.IsWindows)
             {

@@ -178,12 +178,9 @@ namespace DoXM_Client.Services
                     await hubConnection.InvokeAsync("DisplayConsoleMessage", $"Starting remote control...", requesterID);
                     if (OSUtils.IsWindows)
                     {
+                        var doxmClient = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
                         var procInfo = new ADVAPI32.PROCESS_INFORMATION();
-                        var processResult = Win32Interop.OpenInteractiveProcess(rcBinaryPath + $" -mode unattended -requester {requesterID} -serviceid {serviceID} -desktop default -hostname {Utilities.GetConnectionInfo().Host.Split("//").Last()}", "default", true, out procInfo);
-                        if (!processResult)
-                        {
-                            await hubConnection.InvokeAsync("DisplayConsoleMessage", "Remote control failed to start on target machine.", requesterID);
-                        }
+                        Win32Interop.OpenInteractiveProcess(doxmClient + $" -mode remotecontrol -requester {requesterID} -serviceid {serviceID}", $"default", true, out procInfo);
                     }
                     else if (OSUtils.IsLinux)
                     {
