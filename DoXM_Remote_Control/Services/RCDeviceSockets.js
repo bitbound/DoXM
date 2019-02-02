@@ -248,9 +248,9 @@ class RCDeviceSockets {
                 xhr.onload = (ev) => {
                     var cd = xhr.getResponseHeader("Content-Disposition");
                     var filename = cd.split(";").find(x => x.trim().startsWith("filename")).split("=")[1];
-                    var sharedFilePath = path.join(Electron.remote.app.getPath("userData"), "DoXM", "SharedFiles");
+                    var sharedFilePath = path.join(Electron.remote.app.getPath("userData"), "SharedFiles");
                     if (!fs.existsSync(sharedFilePath)) {
-                        fs.mkdirSync(sharedFilePath, null);
+                        fs.mkdirSync(sharedFilePath, { recursive: true });
                     }
                     fs.writeFileSync(path.join(sharedFilePath, filename), new Buffer(xhr.response));
                     if (!prompted) {

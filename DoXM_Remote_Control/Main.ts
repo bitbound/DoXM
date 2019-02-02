@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen, session, ipcMain } from "electron";
+﻿import { app, BrowserWindow, screen, session, ipcMain } from "electron";
 import * as Logger from "./Services/Logger";
 import * as fs from "fs";
 import * as path from "path";
