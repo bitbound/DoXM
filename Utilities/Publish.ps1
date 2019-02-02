@@ -37,7 +37,7 @@ function Replace-LineInFile($FilePath, $MatchPattern, $ReplaceLineWith, $MaxCoun
             break
         }
     }
-    $Content | Out-String | Out-File -FilePath $FilePath -Force -Encoding utf8
+    ($Content | Out-String).Trim() | Out-File -FilePath $FilePath -Force -Encoding utf8
 }
 
 if ($args.Count -eq 0){

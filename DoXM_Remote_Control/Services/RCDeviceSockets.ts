@@ -260,13 +260,13 @@ export class RCDeviceSockets {
                     if (!prompted) {
                         prompted = true;
                         remote.dialog.showMessageBox({
-                            message: `File downloaded to ${path.join(sharedFilePath, filename)}.  Open the folder now?`,
+                            message: `File downloaded to ${path.join(sharedFilePath, filename)}.  Copy path to clipboard?`,
                             title: "Download Complete",
                             type: "question",
                             buttons: ["Yes", "No"]
                         }, (response) => {
                             if (response == 0) {
-                                remote.shell.openExternal(sharedFilePath);
+                                Electron.remote.clipboard.writeText(sharedFilePath);
                             }
                         });
                     }
