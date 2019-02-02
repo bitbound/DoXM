@@ -4,6 +4,8 @@ import * as CommandProcessor from "./CommandProcessor.js";
 import { Store } from "./Store.js";
 import * as DataGrid from "./DataGrid.js";
 import * as BrowserSockets from "./BrowserSockets.js";
+import { DoXMCommands } from "./Commands/DoXMCommands.js";
+
 
 export function ApplyInputEventHandlers() {
     keyDownOnWindow();
@@ -11,6 +13,7 @@ export function ApplyInputEventHandlers() {
     inputOnCommandTextArea();
     inputOnFilterTextBox();
     clickToggleAllMachines();
+    clickStartRemoteControlButton();
 
     window.addEventListener("resize", ev => {
         PositionCommandCompletionWindow();
@@ -156,5 +159,21 @@ function inputOnFilterTextBox() {
 function clickToggleAllMachines() {
     document.getElementById("toggleAllMachines").addEventListener("click", function (e) {
         DataGrid.ToggleSelectAll();
+    })
+}
+
+function clickStartRemoteControlButton() {
+    document.getElementById("startRemoteControlButton").addEventListener("click", function (e) {
+        var selectedMachines = DataGrid.GetSelectedMachines();
+        if (selectedMachines.length == 0) {
+            UI.FloatMessage("You must select a machine first.");
+        }
+        else if (selectedMachines.length > 1) {
+            UI.FloatMessage("You must select only one machine to control.");
+        }
+        else {
+            UI.FloatMessage("Starting remote control...");
+            DoXMCommands.find(x => x.Name == "RemoteControl").Execute([]);
+        }
     })
 }
