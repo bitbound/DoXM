@@ -161,9 +161,9 @@ if ($ArgList.Contains("r")) {
     Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*appimage*" } | Remove-Item -Force
 
     # This global variable would be true if running PowerShell Core on Linux.
-	if ($IsLinux) {
-		build
-	}
+    if ($IsLinux) {
+        build
+    }
     else {
         bash -c build
     }
