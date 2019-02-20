@@ -1,7 +1,7 @@
 add-apt-repository universe
-apt-get update
 wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
+apt-get update
 apt-get install apt-transport-https
 apt-get install dotnet-sdk-2.2
 apt-get install git
@@ -21,7 +21,9 @@ apt-get install make
 
 apt-get install g++
 
-apt-get install wine-stable
+apt-get install wine32
+
+apt-get install wine64
 
 apt-get install powershell
 
