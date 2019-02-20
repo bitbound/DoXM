@@ -72,11 +72,11 @@ namespace DoXM_Library.Win32
             uint dwCreationFlags;
             if (hiddenWindow)
             {
-                dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE;
+                dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW | DETACHED_PROCESS;
             }
             else
             {
-                dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW | DETACHED_PROCESS;
+                dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE;
             }
 
             // Create a new process in the current user's logon session.
