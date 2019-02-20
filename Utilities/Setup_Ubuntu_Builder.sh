@@ -30,7 +30,3 @@ npm install -g electron --unsafe-perm=true --allow-root
 npm install -g typescript
 
 npm install -g electron-builder
-
-mkdir ~/Downloads/DoXM
-cd ~/Downloads/DoXM
-git clone https://github.com/Jay-Rad/DoXM.git
