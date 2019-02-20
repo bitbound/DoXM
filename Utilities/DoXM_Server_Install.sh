@@ -1,3 +1,7 @@
+echo "If you haven't already, publish the DoXM Server app using the 'dotnet publish' 
+command (e.g. dotnet publish <path to csproj file> -o <output directory>).  
+The output directory is the app root path. This would typically be in /var/www/[appname]/.
+"
 read -p "Enter app root path: " appRoot
 read -p "Enter app host (e.g. example.com): " appHost
 
@@ -16,8 +20,7 @@ systemctl start nginx
 
 
 # Configure Nginx
-read -r -d '' nginxConfig << EOF
-server {
+nginxConfig="server {
     listen        80;
     server_name   $appHost *.$appHost;
     location / {
@@ -30,9 +33,9 @@ server {
         proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Proto \$scheme;
     }
-}
-EOF
-$nginxConfig > /etc/nginx/sites-available/doxm
+}"
+
+echo "$nginxConfig" > /etc/nginx/sites-available/doxm
 
 ln -s /etc/nginx/sites-available/doxm /etc/nginx/sites-enabled/doxm
 
@@ -47,8 +50,7 @@ nginx -s reload
 
 # Create service.
 
-read -r -d '' serviceConfig << EOF
-[Unit]
+serviceConfig="[Unit]
 Description=DoXM Server
 
 [Service]
@@ -63,9 +65,9 @@ Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 
 [Install]
-WantedBy=multi-user.target
-EOF
-echo $serviceConfig > /etc/systemd/system/doxm.service
+WantedBy=multi-user.target"
+
+echo "$serviceConfig" > /etc/systemd/system/doxm.service
 
 
 # Enable service.
