@@ -1,6 +1,6 @@
-echo "If you haven't already, publish the DoXM Server app using the 'dotnet publish' 
-command (e.g. dotnet publish <path to csproj file> -o <output directory>).  
-The output directory is the app root path. This would typically be in /var/www/[appname]/.
+echo "If you haven't already, publish the DoXM Server app using the Publish.ps1 scipt
+(e.g. pwsh -f <path to Publish.ps1> -hostname example.com -rid linux-x64 -outdir /var/www/doxm).  
+The app root path is the output directory.
 "
 read -p "Enter app root path: " appRoot
 read -p "Enter app host (e.g. example.com): " appHost
