@@ -275,6 +275,13 @@ namespace DoXM_Server.Data
             return machines;
         }
 
+        public Machine GetMachine(string userID, string machineID)
+        {
+            var orgID = GetUserByID(userID).OrganizationID;
+
+            return DoXMContext.Machines.FirstOrDefault(x => x.OrganizationID == orgID && x.ID == machineID);
+        }
+
         public IEnumerable<PermissionGroup> GetAllPermissions(string userName)
         {
             return DoXMContext.Users

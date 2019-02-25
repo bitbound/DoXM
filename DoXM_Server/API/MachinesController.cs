@@ -40,8 +40,7 @@ namespace DoXM_Server.API
         public async Task<Machine> Get(string id)
         {
             var user = await UserManager.GetUserAsync(User);
-            var machines = DataService.GetAllMachines(user.Id);
-            return machines.FirstOrDefault(x=>x.ID == id);
+            return DataService.GetMachine(user.Id, id);
         }
     }
 }

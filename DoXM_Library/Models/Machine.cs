@@ -27,7 +27,7 @@ namespace DoXM_Library.Models
         public string MachineName { get; set; }
 
         public string OrganizationID { get; set; }
-        public Organization Organization { get; set; }
+        public virtual Organization Organization { get; set; }
 
         public Architecture OSArchitecture { get; set; }
 
