@@ -270,17 +270,60 @@ namespace DoXM_Server.Data
 
             var machines = DoXMContext.Machines
                 .Include(x => x.Drives)
-                .Where(x => x.OrganizationID == orgID);
+                .Where(x => x.OrganizationID == orgID)
+				.Select(x => new Machine()
+				{
+					CurrentUser = x.CurrentUser,
+					Drives = x.Drives,
+					FreeMemory = x.FreeMemory,
+					FreeStorage = x.FreeStorage,
+					ID = x.ID,
+					Is64Bit = x.Is64Bit,
+					IsOnline = x.IsOnline,
+					LastOnline = x.LastOnline,
+					MachineName = x.MachineName,
+					OrganizationID = x.OrganizationID,
+					OSArchitecture = x.OSArchitecture,
+					OSDescription = x.OSDescription,
+					PermissionGroups = x.PermissionGroups,
+					Platform = x.Platform,
+					ProcessorCount = x.ProcessorCount,
+					Tags = x.Tags,
+					TotalMemory = x.TotalMemory,
+					TotalStorage = x.TotalStorage
+				});
 
             return machines;
         }
 
         public Machine GetMachine(string userID, string machineID)
         {
-            var orgID = GetUserByID(userID).OrganizationID;
+			var orgID = GetUserByID(userID).OrganizationID;
 
-            return DoXMContext.Machines.FirstOrDefault(x => x.OrganizationID == orgID && x.ID == machineID);
-        }
+			return DoXMContext.Machines
+				.Where(x => x.OrganizationID == orgID && x.ID == machineID)
+				.Select(x => new Machine()
+				{
+					CurrentUser = x.CurrentUser,
+					Drives = x.Drives,
+					FreeMemory = x.FreeMemory,
+					FreeStorage = x.FreeStorage,
+					ID = x.ID,
+					Is64Bit = x.Is64Bit,
+					IsOnline = x.IsOnline,
+					LastOnline = x.LastOnline,
+					MachineName = x.MachineName,
+					OrganizationID = x.OrganizationID,
+					OSArchitecture = x.OSArchitecture,
+					OSDescription = x.OSDescription,
+					PermissionGroups = x.PermissionGroups,
+					Platform = x.Platform,
+					ProcessorCount = x.ProcessorCount,
+					Tags = x.Tags,
+					TotalMemory = x.TotalMemory,
+					TotalStorage = x.TotalStorage
+				}).FirstOrDefault();
+		}
 
         public IEnumerable<PermissionGroup> GetAllPermissions(string userName)
         {
