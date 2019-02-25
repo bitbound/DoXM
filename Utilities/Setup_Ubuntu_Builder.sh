@@ -1,7 +1,7 @@
 add-apt-repository universe
-apt-get update
 wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
+apt-get update
 apt-get install apt-transport-https
 apt-get install dotnet-sdk-2.2
 apt-get install git
@@ -21,7 +21,9 @@ apt-get install make
 
 apt-get install g++
 
-apt-get install wine-stable
+apt-get install wine32
+
+apt-get install wine64
 
 apt-get install powershell
 
@@ -30,7 +32,3 @@ npm install -g electron --unsafe-perm=true --allow-root
 npm install -g typescript
 
 npm install -g electron-builder
-
-mkdir ~/Downloads/DoXM
-cd ~/Downloads/DoXM
-git clone https://github.com/Jay-Rad/DoXM.git
