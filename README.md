@@ -2,8 +2,7 @@
 ## DoXM has been discontinued.  Please see the new project, Remotely, at https://github.com/jay-rad/remotely.
 A remote control and remote scripting solution, built with .NET Core, Electron, and WebRTC.
 
-Website: https://doxm.app  
-Public Server: https://my.doxm.app
+Website: https://doxm.lucency.co
 
 ## Build Instructions (Windows 10)  
 The following steps will configure your Windows 10 machine for building the DoXM server and clients.
