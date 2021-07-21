@@ -1,5 +1,5 @@
 # DoXM
-## DoXM has been discontinued.  Please see the new project, Remotely, at https://github.com/jay-rad/remotely.
+## DoXM has been discontinued.  Please see the new project, Remotely, at https://github.com/lucent-sea/remotely.
 A remote control and remote scripting solution, built with .NET Core, Electron, and WebRTC.
 
 Website: https://doxm.lucency.co
