@@ -63,36 +63,18 @@ if ((Test-Path -Path "$Root\DoXM_Client\bin\publish\linux-x64") -eq $true) {
 
 
 # Publish Core clients.
-dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime win10-x64 --configuration Release --output ".\bin\publish\win10-x64"
-dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime win10-x86 --configuration Release --output ".\bin\publish\win10-x86"
-dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime linux-x64 --configuration Release --output ".\bin\publish\linux-x64"
+Write-Host "Building dotnet clients."
+dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime win10-x64 --configuration Release --output "$Root\DoXM_Client\bin\publish\win10-x64" "$Root\DoXM_Client"
+dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime win10-x86 --configuration Release --output "$Root\DoXM_Client\bin\publish\win10-x86" "$Root\DoXM_Client"
+dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime linux-x64 --configuration Release --output "$Root\DoXM_Client\bin\publish\linux-x64" "$Root\DoXM_Client"
 
 # Compress Core clients.
-Push-Location -Path "$Root\DoXM_Client\bin\publish\win10-x64"
-Compress-Archive -Path ".\*" -DestinationPath "DoXM-Win10-x64.zip" -CompressionLevel Optimal -Force
-while ((Test-Path -Path "$Root\DoXM-Win10-x64.zip") -eq $false){
-    Start-Sleep -Seconds 1
-}
-Pop-Location
-Move-Item -Path "$Root\DoXM_Client\bin\publish\win10-x64\DoXM-Win10-x64.zip" -Destination "$Root\DoXM_Server\wwwroot\Downloads\DoXM-Win10-x64.zip" -Force
-
-Push-Location -Path "$Root\DoXM_Client\bin\publish\win10-x86"
-Compress-Archive -Path ".\*" -DestinationPath "DoXM-Win10-x86.zip" -CompressionLevel Optimal -Force
-while ((Test-Path -Path "$Root\DoXM-Win10-x86.zip") -eq $false){
-    Start-Sleep -Seconds 1
-}
-Pop-Location
-Move-Item -Path "$Root\DoXM_Client\bin\publish\win10-x86\DoXM-Win10-x86.zip" -Destination "$Root\DoXM_Server\wwwroot\Downloads\DoXM-Win10-x86.zip" -Force
-
-Push-Location -Path "$Root\DoXM_Client\bin\publish\linux-x64"
-Compress-Archive -Path ".\*" -DestinationPath "DoXM-Linux.zip" -CompressionLevel Optimal -Force
-while ((Test-Path -Path "$Root\DoXM-Linux.zip") -eq $false){
-    Start-Sleep -Seconds 1
-}
-Pop-Location
-Move-Item -Path "$Root\DoXM_Client\bin\publish\linux-x64\DoXM-Linux.zip" -Destination "$Root\DoXM_Server\wwwroot\Downloads\DoXM-Linux.zip" -Force
+Compress-Archive -Path "$Root\DoXM_Client\bin\publish\win10-x64\*" -DestinationPath "$Root\DoXM_Server\wwwroot\Downloads\DoXM-Win10-x64.zip" -CompressionLevel Optimal -Force
+Compress-Archive -Path "$Root\DoXM_Client\bin\publish\win10-x86\*" -DestinationPath "$Root\DoXM_Server\wwwroot\Downloads\DoXM-Win10-x86.zip" -CompressionLevel Optimal -Force
+Compress-Archive -Path "$Root\DoXM_Client\bin\publish\linux-x64\*" -DestinationPath "$Root\DoXM_Server\wwwroot\Downloads\DoXM-Linux.zip" -CompressionLevel Optimal -Force
 
 # Build remote control clients.
+Write-Host "Building remote control clients."
 Push-Location -Path "$Root\DoXM_Remote_Control\"
 
 npm install

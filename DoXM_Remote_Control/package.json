@@ -1,7 +1,7 @@
 {
   "name": "doxm_remote_control",
   "productName": "DoXM Remote Control",
-  "version": "2019.02.01",
+  "version": "2021.10.26",
   "description": "The remote control client for DoXM.",
   "main": "Main.js",
   "scripts": {
