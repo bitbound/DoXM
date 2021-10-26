@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using DoXM_Server.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using System.IO;
 using DoXM_Server.Services;
 using Microsoft.Extensions.FileProviders;
@@ -22,12 +21,14 @@ using DoXM_Library.Models;
 using Microsoft.AspNetCore.Http.Connections;
 using DoXM_Library.Services;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace DoXM_Server
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             IsDev = env.IsDevelopment();
@@ -50,8 +51,8 @@ namespace DoXM_Server
             if (dbProvider == "sqlite")
             {
                 services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("SQLite")));
+                    options.UseSqlite(
+                        Configuration.GetConnectionString("SQLite")));
             }
             else if (dbProvider == "sqlserver")
             {
@@ -71,20 +72,18 @@ namespace DoXM_Server
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest).AddJsonOptions(options=> {
-                options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
-            });
-            
+            services.AddRazorPages();
+
             services.AddSignalR(options =>
                 {
                     options.EnableDetailedErrors = IsDev;
-                }
-            ).AddJsonProtocol(options =>
+                    options.MaximumReceiveMessageSize = null;
+                })
+                .AddJsonProtocol(options =>
                 {
-                    options.PayloadSerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+                    options.PayloadSerializerOptions.PropertyNameCaseInsensitive = true;
                 });
+
             services.AddLogging();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<EmailSender>();
@@ -94,13 +93,12 @@ namespace DoXM_Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DataService dataService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataService dataService)
         {
             DataService = dataService;
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -113,24 +111,20 @@ namespace DoXM_Server
             
             app.UseCookiePolicy();
 
+            app.UseRouting();
+
             app.UseAuthentication();
 
-            app.UseSignalR(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapHub<BrowserSocketHub>("/BrowserHub", options => 
-                {
-                    options.ApplicationMaxBufferSize = 500000;
-                    options.TransportMaxBufferSize = 500000;
-                });
-                routes.MapHub<DeviceSocketHub>("/DeviceHub", options =>
-                {
-                    options.ApplicationMaxBufferSize = 500000;
-                    options.TransportMaxBufferSize = 500000;
-                });
-                routes.MapHub<RCDeviceSocketHub>("/RCDeviceHub");
-                routes.MapHub<RCBrowserSocketHub>("/RCBrowserHub");
+                endpoints.MapHub<BrowserSocketHub>("/BrowserHub");
+                endpoints.MapHub<DeviceSocketHub>("/DeviceHub");
+                endpoints.MapHub<RCDeviceSocketHub>("/RCBrowserHub");
+                endpoints.MapHub<RCBrowserSocketHub>("/RCBrowserHub");
+
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
             });
-            app.UseMvcWithDefaultRoute();
             dataService.SetAllMachinesNotOnline();
             dataService.CleanupEmptyOrganizations();
             dataService.CleanupOldRecords();

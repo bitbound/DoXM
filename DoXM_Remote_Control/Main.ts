@@ -2,11 +2,15 @@ import { app, BrowserWindow, screen, session, ipcMain } from "electron";
 import * as Logger from "./Services/Logger";
 import * as fs from "fs";
 import * as path from "path";
+import * as Remote from "@electron/remote/main"
+import * as Robot from "robotjs";
+
+Remote.initialize();
 
 // If TargetHost isn't specified, the remote control will ask the
 // user for a hostname on the first run.
 global["TargetHost"] = "";
-global["Proxy"] = "";
+global["ProxyServer"] = "";
 global["ServiceID"] = "";
 
 var args = processArgs()
@@ -22,8 +26,13 @@ function createNormalPage() {
         show: false,
         frame: false,
         titleBarStyle: "hidden",
-        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
+        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
+    Remote.enable(mainWindow.webContents);
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(__dirname + '/Pages/NormalPage.html');
     mainWindow.show();
@@ -39,8 +48,13 @@ function createTargetHostPromptPage() {
         show: false,
         frame: false,
         titleBarStyle: "hidden",
-        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
+        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
+    Remote.enable(mainWindow.webContents);
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(__dirname + '/Pages/TargetHostPrompt.html');
     mainWindow.show();
@@ -70,8 +84,13 @@ function createUnattendedPage(mode: string) {
         frame: false,
         titleBarStyle: "hidden",
         show: false,
-        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
+        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
+    Remote.enable(mainWindow.webContents);
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(__dirname + '/Pages/UnattendedPage.html');
     mainWindow.show();
@@ -82,7 +101,7 @@ function createUnattendedPage(mode: string) {
 }
 async function createWindow() {
     if (args["proxy"]) {
-        global["Proxy"] = args["proxy"];
+        global["ProxyServer"] = args["proxy"];
     }
     if (args["hostname"]) {
         global["TargetHost"] = args["hostname"];
@@ -146,6 +165,35 @@ ipcMain.on("SetTargetHost", (ev, targetHost) => {
     createWindow().then(() => {
         targetHostWindow.close();
     })
+});
+
+ipcMain.on("MoveMouse", (ev, x: number, y: number) => {
+    Robot.moveMouse(x, y);
+});
+
+ipcMain.on("MouseToggle", (ev, direction: string, button: string) => {
+    Robot.mouseToggle(direction, button);
+});
+
+ipcMain.on("MoveMouseRelative", (ev, moveX: number, moveY: number) => {
+    let mousePos = Robot.getMousePos();
+    Robot.moveMouse(mousePos.x + moveX, mousePos.y + moveY);
+});
+
+ipcMain.on("MouseClick", (ev, button: string) => {
+    Robot.mouseClick(button);
+});
+
+ipcMain.on("ScrollMouse", (ev, deltaX: number, deltaY: number) => {
+    Robot.scrollMouse(deltaX, deltaY);
+});
+
+ipcMain.on("KeyToggle", (ev, key: string, direction: string) => {
+    Robot.keyToggle(key, direction);
+});
+
+ipcMain.on("KeyTap", (ev, key: string) => {
+    Robot.keyTap(key);
 });
 
 app.on('window-all-closed', () => {

@@ -1,6 +1,7 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
 
 namespace DoXM_Server.Migrations
 {
@@ -12,10 +13,10 @@ namespace DoXM_Server.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -23,28 +24,11 @@ namespace DoXM_Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DoXMUserOptions",
-                columns: table => new
-                {
-                    ID = table.Column<string>(nullable: false),
-                    ConsolePrompt = table.Column<string>(maxLength: 5, nullable: true),
-                    CommandModeShortcutDoXM = table.Column<string>(maxLength: 10, nullable: true),
-                    CommandModeShortcutPSCore = table.Column<string>(maxLength: 10, nullable: true),
-                    CommandModeShortcutWinPS = table.Column<string>(maxLength: 10, nullable: true),
-                    CommandModeShortcutCMD = table.Column<string>(maxLength: 10, nullable: true),
-                    CommandModeShortcutBash = table.Column<string>(maxLength: 10, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DoXMUserOptions", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Organizations",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    OrganizationName = table.Column<string>(maxLength: 25, nullable: true)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    OrganizationName = table.Column<string>(type: "TEXT", maxLength: 25, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -55,11 +39,11 @@ namespace DoXM_Server.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    RoleId = table.Column<string>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
+                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
+                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,16 +60,16 @@ namespace DoXM_Server.Migrations
                 name: "CommandContexts",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    CommandMode = table.Column<string>(nullable: true),
-                    CommandText = table.Column<string>(nullable: true),
-                    SenderUserID = table.Column<string>(nullable: true),
-                    SenderConnectionID = table.Column<string>(nullable: true),
-                    TargetMachineIDs = table.Column<string>(nullable: true),
-                    PSCoreResults = table.Column<string>(nullable: true),
-                    CommandResults = table.Column<string>(nullable: true),
-                    TimeStamp = table.Column<DateTime>(nullable: false),
-                    OrganizationID = table.Column<string>(nullable: true)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    CommandMode = table.Column<string>(type: "TEXT", nullable: true),
+                    CommandText = table.Column<string>(type: "TEXT", nullable: true),
+                    SenderUserID = table.Column<string>(type: "TEXT", nullable: true),
+                    SenderConnectionID = table.Column<string>(type: "TEXT", nullable: true),
+                    TargetMachineIDs = table.Column<string>(type: "TEXT", nullable: true),
+                    PSCoreResults = table.Column<string>(type: "TEXT", nullable: true),
+                    CommandResults = table.Column<string>(type: "TEXT", nullable: true),
+                    TimeStamp = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    OrganizationID = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -94,34 +78,33 @@ namespace DoXM_Server.Migrations
                         name: "FK_CommandContexts_Organizations_OrganizationID",
                         column: x => x.OrganizationID,
                         principalTable: "Organizations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "DoXMUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
-                    UserName = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
-                    Email = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
-                    PasswordHash = table.Column<string>(nullable: true),
-                    SecurityStamp = table.Column<string>(nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false),
-                    Discriminator = table.Column<string>(nullable: false),
-                    UserOptions = table.Column<string>(nullable: true),
-                    OrganizationID = table.Column<string>(nullable: true),
-                    PermissionGroups = table.Column<string>(nullable: true),
-                    IsAdministrator = table.Column<bool>(nullable: true)
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Discriminator = table.Column<string>(type: "TEXT", nullable: false),
+                    UserOptions = table.Column<string>(type: "TEXT", nullable: true),
+                    OrganizationID = table.Column<string>(type: "TEXT", nullable: true),
+                    PermissionGroups = table.Column<string>(type: "TEXT", nullable: true),
+                    IsAdministrator = table.Column<bool>(type: "INTEGER", nullable: true),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -130,21 +113,20 @@ namespace DoXM_Server.Migrations
                         name: "FK_DoXMUsers_Organizations_OrganizationID",
                         column: x => x.OrganizationID,
                         principalTable: "Organizations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "EventLogs",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    EventType = table.Column<int>(nullable: false),
-                    Message = table.Column<string>(nullable: true),
-                    Source = table.Column<string>(nullable: true),
-                    StackTrace = table.Column<string>(nullable: true),
-                    OrganizationID = table.Column<string>(nullable: true),
-                    TimeStamp = table.Column<DateTime>(nullable: false)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    EventType = table.Column<int>(type: "INTEGER", nullable: false),
+                    Message = table.Column<string>(type: "TEXT", nullable: true),
+                    Source = table.Column<string>(type: "TEXT", nullable: true),
+                    StackTrace = table.Column<string>(type: "TEXT", nullable: true),
+                    OrganizationID = table.Column<string>(type: "TEXT", nullable: true),
+                    TimeStamp = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -153,19 +135,18 @@ namespace DoXM_Server.Migrations
                         name: "FK_EventLogs_Organizations_OrganizationID",
                         column: x => x.OrganizationID,
                         principalTable: "Organizations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "InviteLinks",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    InvitedUser = table.Column<string>(nullable: true),
-                    IsAdmin = table.Column<bool>(nullable: false),
-                    DateSent = table.Column<DateTime>(nullable: false),
-                    OrganizationID = table.Column<string>(nullable: true)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    InvitedUser = table.Column<string>(type: "TEXT", nullable: true),
+                    IsAdmin = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DateSent = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    OrganizationID = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -174,31 +155,30 @@ namespace DoXM_Server.Migrations
                         name: "FK_InviteLinks_Organizations_OrganizationID",
                         column: x => x.OrganizationID,
                         principalTable: "Organizations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Machines",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    Is64Bit = table.Column<bool>(nullable: false),
-                    IsOnline = table.Column<bool>(nullable: false),
-                    LastOnline = table.Column<DateTime>(nullable: false),
-                    MachineName = table.Column<string>(nullable: true),
-                    OrganizationID = table.Column<string>(nullable: true),
-                    OSArchitecture = table.Column<int>(nullable: false),
-                    OSDescription = table.Column<string>(nullable: true),
-                    Platform = table.Column<string>(nullable: true),
-                    ProcessorCount = table.Column<int>(nullable: false),
-                    TotalMemory = table.Column<double>(nullable: false),
-                    FreeStorage = table.Column<double>(nullable: false),
-                    TotalStorage = table.Column<double>(nullable: false),
-                    FreeMemory = table.Column<double>(nullable: false),
-                    CurrentUser = table.Column<string>(nullable: true),
-                    Tags = table.Column<string>(maxLength: 200, nullable: true),
-                    ServerVerificationToken = table.Column<string>(nullable: true)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    Is64Bit = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsOnline = table.Column<bool>(type: "INTEGER", nullable: false),
+                    LastOnline = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    MachineName = table.Column<string>(type: "TEXT", nullable: true),
+                    OrganizationID = table.Column<string>(type: "TEXT", nullable: true),
+                    OSArchitecture = table.Column<int>(type: "INTEGER", nullable: false),
+                    OSDescription = table.Column<string>(type: "TEXT", nullable: true),
+                    Platform = table.Column<string>(type: "TEXT", nullable: true),
+                    ProcessorCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    TotalMemory = table.Column<double>(type: "REAL", nullable: false),
+                    FreeStorage = table.Column<double>(type: "REAL", nullable: false),
+                    TotalStorage = table.Column<double>(type: "REAL", nullable: false),
+                    FreeMemory = table.Column<double>(type: "REAL", nullable: false),
+                    CurrentUser = table.Column<string>(type: "TEXT", nullable: true),
+                    Tags = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
+                    ServerVerificationToken = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -207,20 +187,19 @@ namespace DoXM_Server.Migrations
                         name: "FK_Machines_Organizations_OrganizationID",
                         column: x => x.OrganizationID,
                         principalTable: "Organizations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "SharedFiles",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    FileName = table.Column<string>(nullable: true),
-                    ContentType = table.Column<string>(nullable: true),
-                    FileContents = table.Column<byte[]>(nullable: true),
-                    Timestamp = table.Column<DateTime>(nullable: false),
-                    OrganizationID = table.Column<string>(nullable: true)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    FileName = table.Column<string>(type: "TEXT", nullable: true),
+                    ContentType = table.Column<string>(type: "TEXT", nullable: true),
+                    FileContents = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    Timestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    OrganizationID = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -229,19 +208,18 @@ namespace DoXM_Server.Migrations
                         name: "FK_SharedFiles_Organizations_OrganizationID",
                         column: x => x.OrganizationID,
                         principalTable: "Organizations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<string>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
+                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -258,10 +236,10 @@ namespace DoXM_Server.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderDisplayName = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: false)
+                    LoginProvider = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    ProviderKey = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -278,8 +256,8 @@ namespace DoXM_Server.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(nullable: false),
-                    RoleId = table.Column<string>(nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -302,10 +280,10 @@ namespace DoXM_Server.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(nullable: false),
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
-                    Value = table.Column<string>(nullable: true)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    LoginProvider = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -322,15 +300,15 @@ namespace DoXM_Server.Migrations
                 name: "Drives",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    DriveType = table.Column<int>(nullable: false),
-                    RootDirectory = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: true),
-                    DriveFormat = table.Column<string>(nullable: true),
-                    FreeSpace = table.Column<double>(nullable: false),
-                    TotalSize = table.Column<double>(nullable: false),
-                    VolumeLabel = table.Column<string>(nullable: true),
-                    MachineID = table.Column<string>(nullable: true)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    DriveType = table.Column<int>(type: "INTEGER", nullable: false),
+                    RootDirectory = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    DriveFormat = table.Column<string>(type: "TEXT", nullable: true),
+                    FreeSpace = table.Column<double>(type: "REAL", nullable: false),
+                    TotalSize = table.Column<double>(type: "REAL", nullable: false),
+                    VolumeLabel = table.Column<string>(type: "TEXT", nullable: true),
+                    MachineID = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -339,18 +317,17 @@ namespace DoXM_Server.Migrations
                         name: "FK_Drives_Machines_MachineID",
                         column: x => x.MachineID,
                         principalTable: "Machines",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "PermissionGroups",
                 columns: table => new
                 {
-                    ID = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(maxLength: 100, nullable: true),
-                    OrganizationID = table.Column<string>(nullable: true),
-                    MachineID = table.Column<string>(nullable: true)
+                    ID = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OrganizationID = table.Column<string>(type: "TEXT", nullable: true),
+                    MachineID = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -359,14 +336,12 @@ namespace DoXM_Server.Migrations
                         name: "FK_PermissionGroups_Machines_MachineID",
                         column: x => x.MachineID,
                         principalTable: "Machines",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                     table.ForeignKey(
                         name: "FK_PermissionGroups_Organizations_OrganizationID",
                         column: x => x.OrganizationID,
                         principalTable: "Organizations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateIndex(
@@ -378,8 +353,7 @@ namespace DoXM_Server.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -402,21 +376,20 @@ namespace DoXM_Server.Migrations
                 column: "OrganizationID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoXMUsers_OrganizationID",
-                table: "DoXMUsers",
-                column: "OrganizationID");
-
-            migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 table: "DoXMUsers",
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DoXMUsers_OrganizationID",
+                table: "DoXMUsers",
+                column: "OrganizationID");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "DoXMUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Drives_MachineID",
@@ -473,9 +446,6 @@ namespace DoXM_Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "CommandContexts");
-
-            migrationBuilder.DropTable(
-                name: "DoXMUserOptions");
 
             migrationBuilder.DropTable(
                 name: "Drives");

@@ -1,10 +1,7 @@
-import * as Electron from "electron";
-import * as RCDeviceSockets from "../Services/RCDeviceSockets";
-import * as Logger from "../Services/Logger";
-import { Viewer } from "../Models/Viewer";
+import * as Electron from "@electron/remote";
 import { RCClient } from "../Services/RCClient";
 
-var host = Electron.remote.getGlobal("TargetHost");
+var host = Electron.getGlobal("TargetHost");
 
 export var ConnectButton = document.getElementById("connectButton") as HTMLButtonElement;
 export var RequesterNameInput = document.getElementById("requesterName") as HTMLInputElement;
@@ -19,12 +16,12 @@ export var CloseButton = document.getElementById("closeButton") as HTMLButtonEle
 
 window.onload = () => {
     document.getElementById("doxmTitle").onclick = () => {
-        Electron.remote.shell.openExternal("https://doxm.app");
+        Electron.shell.openExternal("https://doxm.app");
     }
     document.getElementById("connectButton").onclick = () => {
         var requesterName = encodeURIComponent(RequesterNameInput.value);
         var theirSessionID = encodeURIComponent(TheirSessionIDInput.value.trim().split(" ").join(""));
-        var window = new Electron.remote.BrowserWindow({
+        var window = new Electron.BrowserWindow({
             icon: '../Assets/DoXM_Icon.png',
             show: false,
             webPreferences: {
@@ -47,16 +44,16 @@ window.onload = () => {
         RCClient.ViewerList.find(x => x.ViewerConnectionID == viewerID).PeerConnection.close();
     })
     document.getElementById("copyInviteLinkButton").addEventListener("click", (ev) => {
-        Electron.remote.clipboard.writeText(`https://${host}/RemoteControl?sessionID=${MySessionIDInput.value.split(" ").join("")}`);
+        Electron.clipboard.writeText(`https://${host}/RemoteControl?sessionID=${MySessionIDInput.value.split(" ").join("")}`);
         ShowMessage("Copied to clipboard.");
     });
     document.getElementById("closeButton").addEventListener("click", (ev) => {
-        Electron.remote.getCurrentWindow().close();
+        Electron.getCurrentWindow().close();
     });
     document.getElementById("minimizeButton").addEventListener("click", (ev) => {
-        Electron.remote.getCurrentWindow().minimize();
+        Electron.getCurrentWindow().minimize();
     });
-    RCClient.RCDeviceSockets.Connect();
+    RCClient.DeviceSocket.Connect();
 }
 
 export function ShowMessage(message: string) {

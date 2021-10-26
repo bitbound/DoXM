@@ -1,51 +1,16 @@
 import { Viewer } from "../Models/Viewer";
-import { RCDeviceSockets } from "./RCDeviceSockets";
-import { remote, desktopCapturer } from "electron";
+import { DeviceSocket } from "./DeviceSocket";
+import * as Electron from "@electron/remote";
 
 export const RCClient = new class {
     ViewerList = new Array<Viewer>();
-    RCDeviceSockets = new RCDeviceSockets();
-    Host = remote.getGlobal("TargetHost");
-    Mode: "Normal" | "Unattended" | "DesktopSwitch" = remote.getGlobal("Mode");
-    ConsoleRequesterID = remote.getGlobal("RequesterID");
-    PreSwitchViewers:string = remote.getGlobal("ViewerIDs");
-    ServiceID = remote.getGlobal("ServiceID");
-    Desktop = remote.getGlobal("Desktop");
+    DeviceSocket = new DeviceSocket();
+    Host = Electron.getGlobal("TargetHost");
+    Mode: "Normal" | "Unattended" | "DesktopSwitch" = Electron.getGlobal("Mode");
+    ConsoleRequesterID = Electron.getGlobal("RequesterID");
+    PreSwitchViewers:string = Electron.getGlobal("ViewerIDs");
+    ServiceID = Electron.getGlobal("ServiceID");
+    Desktop = Electron.getGlobal("Desktop");
     ConnectionURL = "https://" + this.Host + "/RCDeviceHub";
-    Proxy: string = remote.getGlobal("Proxy");
-
-    WarmUpRTC(): any {
-        var constraints = {
-            video: {
-                mandatory: {
-                    chromeMediaSource: 'desktop'
-                }
-            },
-            audio: {
-                mandatory: {
-                    chromeMediaSource: 'desktop'
-                }
-            }
-        } as any;
-
-        return new Promise((resolve, reject) => {
-            desktopCapturer.getSources({ types: ['screen'] }, (error, sources) => {
-                constraints.video.mandatory.chromeMediaSourceId = sources[0].id;
-                navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
-                    stream.getTracks();
-                    resolve();
-                }).catch(() => {
-                    delete constraints.audio;
-                    navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
-                        stream.getTracks();
-                        resolve();
-                    }).catch((e) => {
-                        console.error(e);
-                        remote.dialog.showErrorBox("Capture Failure", "Unable to capture desktop.");
-                        reject(e);
-                    })
-                })
-            })
-        });
-    }
+    Proxy: string = Electron.getGlobal("ProxyServer");
 }

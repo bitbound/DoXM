@@ -4,10 +4,13 @@ const electron_1 = require("electron");
 const Logger = require("./Services/Logger");
 const fs = require("fs");
 const path = require("path");
+const Remote = require("@electron/remote/main");
+const Robot = require("robotjs");
+Remote.initialize();
 // If TargetHost isn't specified, the remote control will ask the
 // user for a hostname on the first run.
 global["TargetHost"] = "";
-global["Proxy"] = "";
+global["ProxyServer"] = "";
 global["ServiceID"] = "";
 var args = processArgs();
 var mainWindow;
@@ -21,8 +24,13 @@ function createNormalPage() {
         show: false,
         frame: false,
         titleBarStyle: "hidden",
-        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
+        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
+    Remote.enable(mainWindow.webContents);
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(__dirname + '/Pages/NormalPage.html');
     mainWindow.show();
@@ -38,8 +46,13 @@ function createTargetHostPromptPage() {
         show: false,
         frame: false,
         titleBarStyle: "hidden",
-        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
+        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
+    Remote.enable(mainWindow.webContents);
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(__dirname + '/Pages/TargetHostPrompt.html');
     mainWindow.show();
@@ -68,8 +81,13 @@ function createUnattendedPage(mode) {
         frame: false,
         titleBarStyle: "hidden",
         show: false,
-        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png'
+        icon: __dirname + '/Assets/DoXM_Icon_Transparent.png',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
+    Remote.enable(mainWindow.webContents);
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadFile(__dirname + '/Pages/UnattendedPage.html');
     mainWindow.show();
@@ -79,7 +97,7 @@ function createUnattendedPage(mode) {
 }
 async function createWindow() {
     if (args["proxy"]) {
-        global["Proxy"] = args["proxy"];
+        global["ProxyServer"] = args["proxy"];
     }
     if (args["hostname"]) {
         global["TargetHost"] = args["hostname"];
@@ -140,6 +158,28 @@ electron_1.ipcMain.on("SetTargetHost", (ev, targetHost) => {
     createWindow().then(() => {
         targetHostWindow.close();
     });
+});
+electron_1.ipcMain.on("MoveMouse", (ev, x, y) => {
+    Robot.moveMouse(x, y);
+});
+electron_1.ipcMain.on("MouseToggle", (ev, direction, button) => {
+    Robot.mouseToggle(direction, button);
+});
+electron_1.ipcMain.on("MoveMouseRelative", (ev, moveX, moveY) => {
+    let mousePos = Robot.getMousePos();
+    Robot.moveMouse(mousePos.x + moveX, mousePos.y + moveY);
+});
+electron_1.ipcMain.on("MouseClick", (ev, button) => {
+    Robot.mouseClick(button);
+});
+electron_1.ipcMain.on("ScrollMouse", (ev, deltaX, deltaY) => {
+    Robot.scrollMouse(deltaX, deltaY);
+});
+electron_1.ipcMain.on("KeyToggle", (ev, key, direction) => {
+    Robot.keyToggle(key, direction);
+});
+electron_1.ipcMain.on("KeyTap", (ev, key) => {
+    Robot.keyTap(key);
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

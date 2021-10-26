@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Electron = require("electron");
+exports.ShowMessage = exports.CloseButton = exports.MinimizeButton = exports.CopyInviteLinkButton = exports.ViewOnlyToggle = exports.RemoveViewerButton = exports.ViewerListSelect = exports.TheirSessionIDInput = exports.MySessionIDInput = exports.RequesterNameInput = exports.ConnectButton = void 0;
+const Electron = require("@electron/remote");
 const RCClient_1 = require("../Services/RCClient");
-var host = Electron.remote.getGlobal("TargetHost");
+var host = Electron.getGlobal("TargetHost");
 exports.ConnectButton = document.getElementById("connectButton");
 exports.RequesterNameInput = document.getElementById("requesterName");
 exports.MySessionIDInput = document.getElementById("mySessionID");
@@ -15,12 +16,12 @@ exports.MinimizeButton = document.getElementById("minimizeButton");
 exports.CloseButton = document.getElementById("closeButton");
 window.onload = () => {
     document.getElementById("doxmTitle").onclick = () => {
-        Electron.remote.shell.openExternal("https://doxm.app");
+        Electron.shell.openExternal("https://doxm.app");
     };
     document.getElementById("connectButton").onclick = () => {
         var requesterName = encodeURIComponent(exports.RequesterNameInput.value);
         var theirSessionID = encodeURIComponent(exports.TheirSessionIDInput.value.trim().split(" ").join(""));
-        var window = new Electron.remote.BrowserWindow({
+        var window = new Electron.BrowserWindow({
             icon: '../Assets/DoXM_Icon.png',
             show: false,
             webPreferences: {
@@ -43,16 +44,16 @@ window.onload = () => {
         RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == viewerID).PeerConnection.close();
     });
     document.getElementById("copyInviteLinkButton").addEventListener("click", (ev) => {
-        Electron.remote.clipboard.writeText(`https://${host}/RemoteControl?sessionID=${exports.MySessionIDInput.value.split(" ").join("")}`);
+        Electron.clipboard.writeText(`https://${host}/RemoteControl?sessionID=${exports.MySessionIDInput.value.split(" ").join("")}`);
         ShowMessage("Copied to clipboard.");
     });
     document.getElementById("closeButton").addEventListener("click", (ev) => {
-        Electron.remote.getCurrentWindow().close();
+        Electron.getCurrentWindow().close();
     });
     document.getElementById("minimizeButton").addEventListener("click", (ev) => {
-        Electron.remote.getCurrentWindow().minimize();
+        Electron.getCurrentWindow().minimize();
     });
-    RCClient_1.RCClient.RCDeviceSockets.Connect();
+    RCClient_1.RCClient.DeviceSocket.Connect();
 };
 function ShowMessage(message) {
     var messageDiv = document.createElement("div");

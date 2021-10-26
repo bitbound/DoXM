@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Electron = require("electron");
+exports.Viewer = void 0;
+const Electron = require("@electron/remote");
 const Logger = require("../Services/Logger");
 const Utilities = require("../Services/Utilities");
 const RCClient_1 = require("../Services/RCClient");
 const NormalPage_1 = require("../Pages/NormalPage");
-const electron_1 = require("electron");
+const RtcHelper_1 = require("../Services/RtcHelper");
 class Viewer {
     constructor(requesterID, requesterName = "") {
         this.CurrentScreenIndex = 0;
@@ -15,7 +16,7 @@ class Viewer {
     }
     async InitRTC() {
         try {
-            var iceConfiguration = Electron.remote.getGlobal("IceConfiguration");
+            var iceConfiguration = Electron.getGlobal("IceConfiguration");
             this.PeerConnection = new RTCPeerConnection(iceConfiguration);
             let connectionID = this.ViewerConnectionID;
             this.PeerConnection.onconnectionstatechange = function (ev) {
@@ -32,7 +33,7 @@ class Viewer {
                             viewerOptionElement.remove();
                         }
                         if ((RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") && RCClient_1.RCClient.ViewerList.length == 0) {
-                            Electron.remote.app.exit();
+                            Electron.app.exit();
                         }
                         break;
                     default:
@@ -53,7 +54,7 @@ class Viewer {
                             viewerOptionElement.remove();
                         }
                         if ((RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") && RCClient_1.RCClient.ViewerList.length == 0) {
-                            Electron.remote.app.exit();
+                            Electron.app.exit();
                         }
                         break;
                     default:
@@ -85,13 +86,13 @@ class Viewer {
         }
     }
     SendScreenCount(primaryScreenIndex, screenCount) {
-        return RCClient_1.RCClient.RCDeviceSockets.HubConnection.invoke("SendScreenCountToBrowser", primaryScreenIndex, screenCount, this.ViewerConnectionID);
+        return RCClient_1.RCClient.DeviceSocket.HubConnection.invoke("SendScreenCountToBrowser", primaryScreenIndex, screenCount, this.ViewerConnectionID);
     }
     SendRTCSession(description) {
-        return RCClient_1.RCClient.RCDeviceSockets.HubConnection.invoke("SendRTCSessionToBrowser", description, this.ViewerConnectionID);
+        return RCClient_1.RCClient.DeviceSocket.HubConnection.invoke("SendRTCSessionToBrowser", description, this.ViewerConnectionID);
     }
     SendIceCandidate(candidate) {
-        return RCClient_1.RCClient.RCDeviceSockets.HubConnection.invoke("SendIceCandidateToBrowser", candidate, this.ViewerConnectionID);
+        return RCClient_1.RCClient.DeviceSocket.HubConnection.invoke("SendIceCandidateToBrowser", candidate, this.ViewerConnectionID);
     }
     async ReceiveRTCSession(description) {
         if (description.type == 'offer') {
@@ -114,55 +115,10 @@ class Viewer {
             await this.PeerConnection.addIceCandidate(candidate);
         });
     }
-    SetDesktopStream(screenIndex) {
-        var peerConnection = this.PeerConnection;
+    async SetDesktopStream(screenIndex) {
+        const peerConnection = this.PeerConnection;
         this.CurrentScreenIndex = screenIndex;
-        var constraints = {
-            video: {
-                mandatory: {
-                    chromeMediaSource: 'desktop'
-                }
-            },
-            audio: {
-                mandatory: {
-                    chromeMediaSource: 'desktop'
-                }
-            }
-        };
-        return new Promise((resolve, reject) => {
-            electron_1.desktopCapturer.getSources({ types: ['screen'] }, (error, sources) => {
-                if (error) {
-                    reject(error);
-                    throw error;
-                }
-                constraints.video.mandatory.chromeMediaSourceId = sources[screenIndex].id;
-                async function setTrack(stream) {
-                    stream.getTracks().forEach(track => {
-                        var existingSenders = peerConnection.getSenders();
-                        if (existingSenders.some(x => x.track.kind == track.kind)) {
-                            existingSenders.find(x => x.track.kind == track.kind).replaceTrack(track);
-                        }
-                        else {
-                            peerConnection.addTrack(track, stream);
-                        }
-                    });
-                    resolve();
-                }
-                navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
-                    setTrack(stream);
-                }).catch(() => {
-                    delete constraints.audio;
-                    navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
-                        setTrack(stream);
-                    }).catch((e) => {
-                        console.error(e);
-                        Logger.WriteLog(e.message);
-                        Electron.remote.dialog.showErrorBox("Capture Failure", "Unable to capture desktop.");
-                        reject(e);
-                    });
-                });
-            });
-        });
+        await (0, RtcHelper_1.SetDesktopStream)(peerConnection, screenIndex);
     }
 }
 exports.Viewer = Viewer;

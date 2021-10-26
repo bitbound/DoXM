@@ -3,7 +3,7 @@ import { appendFileSync, statSync, readFileSync, writeFileSync, existsSync } fro
 import { join } from "path";
 
 export function WriteLog(message: string) {
-    var logPath = join(tmpdir(), "\DoXM_RC_Logs.txt");
+    var logPath = join(tmpdir(), "\\DoXM_Remote_Control.log");
     if (existsSync(logPath)) {
         while (statSync(logPath).size > 1000000) {
             var content = readFileSync(logPath, { encoding: "utf8" });

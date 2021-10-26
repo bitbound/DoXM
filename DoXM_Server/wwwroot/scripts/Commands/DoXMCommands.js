@@ -6,6 +6,7 @@ import { Main } from "../Main.js";
 import * as DataGrid from "../DataGrid.js";
 import { AddConsoleOutput } from "../UI.js";
 import { GetSelectedMachines } from "../DataGrid.js";
+const $ = {};
 var commands = [
     new ConsoleCommand("AddGroup", [
         new Parameter("group", "The group name to add.", "String")

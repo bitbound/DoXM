@@ -94,7 +94,7 @@ namespace DoXM_Client
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Logger.Write(e.ExceptionObject as Exception);
-            if (OSUtils.IsWindows)
+            if (OperatingSystem.IsWindows())
             {
                 // Remove Secure Attention Sequence policy to allow app to simulate Ctrl + Alt + Del.
                 var subkey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", true);

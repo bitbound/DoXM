@@ -14,6 +14,7 @@ import { CreateCommandHarness, AddPSCoreResultsHarness, UpdateResultsCount, AddC
 import { GenericCommandResult } from "./Models/GenericCommandResult.js";
 import { GetSelectedMachines } from "./DataGrid.js";
 
+const $ = {} as any;
 
 export var CommandCompletionDiv = document.querySelector("#commandCompletionDiv") as HTMLDivElement;
 export var CommandInfoDiv = document.querySelector("#commandInfoDiv") as HTMLDivElement;

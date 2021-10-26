@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.StringifyCircular = exports.GetAbsolutePointFromPercents = exports.When = exports.TryUntil = void 0;
 const Electron = require("electron");
 async function TryUntil(action, rejectCondition) {
     return new Promise((resolve, reject) => {
@@ -44,7 +45,7 @@ async function When(predicate) {
 }
 exports.When = When;
 function GetAbsolutePointFromPercents(percentX, percentY, viewer) {
-    var currentScreen = Electron.remote.screen.getAllDisplays()[viewer.CurrentScreenIndex];
+    var currentScreen = Electron.screen.getAllDisplays()[viewer.CurrentScreenIndex];
     var absoluteX = (currentScreen.bounds.width * percentX) + currentScreen.bounds.x;
     var absoluteY = (currentScreen.bounds.height * percentY) + currentScreen.bounds.y;
     return { x: absoluteX, y: absoluteY };

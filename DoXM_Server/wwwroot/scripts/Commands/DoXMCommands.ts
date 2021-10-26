@@ -9,6 +9,7 @@ import * as DataGrid from "../DataGrid.js";
 import { AddConsoleHTML, AddConsoleOutput } from "../UI.js";
 import { GetSelectedMachines } from "../DataGrid.js";
 
+const $ = {} as any;
 
 var commands: Array<ConsoleCommand> = [
     new ConsoleCommand(

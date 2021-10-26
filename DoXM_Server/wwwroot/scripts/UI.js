@@ -1,6 +1,7 @@
 import { UserSettings } from "./UserSettings.js";
 import * as Utilities from "./Utilities.js";
 import { GetSelectedMachines } from "./DataGrid.js";
+const $ = {};
 export var CommandCompletionDiv = document.querySelector("#commandCompletionDiv");
 export var CommandInfoDiv = document.querySelector("#commandInfoDiv");
 export var CommandModeSelect = document.querySelector("#commandModeSelect");

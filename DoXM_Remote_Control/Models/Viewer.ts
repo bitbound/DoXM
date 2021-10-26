@@ -1,9 +1,9 @@
-import * as Electron from "electron";
+import * as Electron from "@electron/remote";
 import * as Logger from "../Services/Logger";
 import * as Utilities from "../Services/Utilities";
 import { RCClient } from "../Services/RCClient";
 import { ViewerListSelect } from "../Pages/NormalPage";
-import { desktopCapturer } from "electron";
+import { SetDesktopStream } from "../Services/RtcHelper";
 
 export class Viewer {
     constructor(requesterID: string, requesterName: string = "") {
@@ -21,7 +21,7 @@ export class Viewer {
 
     async InitRTC() {
         try {
-            var iceConfiguration = Electron.remote.getGlobal("IceConfiguration");
+            var iceConfiguration = Electron.getGlobal("IceConfiguration");
             this.PeerConnection = new RTCPeerConnection(iceConfiguration);
             let connectionID = this.ViewerConnectionID;
             this.PeerConnection.onconnectionstatechange = function (ev) {
@@ -38,7 +38,7 @@ export class Viewer {
                             viewerOptionElement.remove();
                         }
                         if ((RCClient.Mode == "Unattended" || RCClient.Mode == "DesktopSwitch") && RCClient.ViewerList.length == 0) {
-                            Electron.remote.app.exit();
+                            Electron.app.exit();
                         }
                         break;
                     default:
@@ -59,7 +59,7 @@ export class Viewer {
                             viewerOptionElement.remove();
                         }
                         if ((RCClient.Mode == "Unattended" || RCClient.Mode == "DesktopSwitch") && RCClient.ViewerList.length == 0) {
-                            Electron.remote.app.exit();
+                            Electron.app.exit();
                         }
                         break;
                     default:
@@ -95,14 +95,14 @@ export class Viewer {
     }
 
     SendScreenCount(primaryScreenIndex: number, screenCount: number) {
-        return RCClient.RCDeviceSockets.HubConnection.invoke("SendScreenCountToBrowser", primaryScreenIndex, screenCount, this.ViewerConnectionID);
+        return RCClient.DeviceSocket.HubConnection.invoke("SendScreenCountToBrowser", primaryScreenIndex, screenCount, this.ViewerConnectionID);
     }
     SendRTCSession(description: RTCSessionDescription) {
-        return RCClient.RCDeviceSockets.HubConnection.invoke("SendRTCSessionToBrowser", description, this.ViewerConnectionID);
+        return RCClient.DeviceSocket.HubConnection.invoke("SendRTCSessionToBrowser", description, this.ViewerConnectionID);
     }
 
     SendIceCandidate(candidate: RTCIceCandidate) {
-        return RCClient.RCDeviceSockets.HubConnection.invoke("SendIceCandidateToBrowser", candidate, this.ViewerConnectionID);
+        return RCClient.DeviceSocket.HubConnection.invoke("SendIceCandidateToBrowser", candidate, this.ViewerConnectionID);
     }
 
     async ReceiveRTCSession(description: RTCSessionDescription) {
@@ -124,56 +124,10 @@ export class Viewer {
             await this.PeerConnection.addIceCandidate(candidate);
         })
     }
-    SetDesktopStream(screenIndex: number) {
-        var peerConnection = this.PeerConnection;
+    async SetDesktopStream(screenIndex: number) {
+        const peerConnection = this.PeerConnection;
         this.CurrentScreenIndex = screenIndex;
-        var constraints = {
-            video: {
-                mandatory: {
-                    chromeMediaSource: 'desktop'
-                }
-            },
-            audio: {
-                mandatory: {
-                    chromeMediaSource: 'desktop'
-                }
-            }
-        } as any;
-
-        return new Promise((resolve, reject) => {
-            desktopCapturer.getSources({ types: ['screen'] }, (error, sources) => {
-                if (error) {
-                    reject(error);
-                    throw error;
-                }
-                constraints.video.mandatory.chromeMediaSourceId = sources[screenIndex].id;
-                async function setTrack(stream) {
-                    stream.getTracks().forEach(track => {
-                        var existingSenders = peerConnection.getSenders();
-                        if (existingSenders.some(x => x.track.kind == track.kind)) {
-                            existingSenders.find(x => x.track.kind == track.kind).replaceTrack(track);
-                        }
-                        else {
-                            peerConnection.addTrack(track, stream);
-                        }
-                    });
-                    resolve();
-                }
-                navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
-                    setTrack(stream);
-                }).catch(() => {
-                    delete constraints.audio;
-                    navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
-                        setTrack(stream);
-                    }).catch((e) => {
-                        console.error(e);
-                        Logger.WriteLog(e.message);
-                        Electron.remote.dialog.showErrorBox("Capture Failure", "Unable to capture desktop.");
-                        reject(e);
-                    })
-                })
-            })
-        });
+        await SetDesktopStream(peerConnection, screenIndex);
     }
 }
 

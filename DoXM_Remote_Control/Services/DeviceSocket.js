@@ -1,93 +1,94 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Electron = require("electron");
-const signalR = require("@aspnet/signalr");
+exports.DeviceSocket = void 0;
+const Electron = require("@electron/remote");
 const Logger = require("../Services/Logger");
-const electron_1 = require("electron");
+const SignalR = require("@microsoft/signalr");
 const Viewer_1 = require("../Models/Viewer");
 const NormalPage_1 = require("../Pages/NormalPage");
-const Robot = require("robotjs");
 const Utilities_1 = require("./Utilities");
 const RCClient_1 = require("./RCClient");
 const fs = require("fs");
 const path = require("path");
 const DesktopWatcher = require("../Services/DesktopWatcher");
 const os_1 = require("os");
-class RCDeviceSockets {
+const RtcHelper_1 = require("./RtcHelper");
+const electron_1 = require("electron");
+class DeviceSocket {
     async Connect() {
         if (RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") {
             window.setTimeout(() => {
                 if (RCClient_1.RCClient.ViewerList.length == 0) {
                     Logger.WriteLog("No viewers connected.  Closing remote control.");
-                    Electron.remote.app.exit();
+                    Electron.app.exit();
                 }
             }, 10000);
         }
-        await RCClient_1.RCClient.WarmUpRTC();
-        this.HubConnection = new signalR.HubConnectionBuilder()
+        await (0, RtcHelper_1.WarmUpRTC)();
+        this.HubConnection = new SignalR.HubConnectionBuilder()
             .withUrl(RCClient_1.RCClient.ConnectionURL, {
             proxy: `${RCClient_1.RCClient.Proxy}`
         })
-            .configureLogging(signalR.LogLevel.Information)
+            .configureLogging(SignalR.LogLevel.Information)
             .build();
-        this.ApplyMessageHandlers();
+        await this.ApplyMessageHandlers();
         this.HubConnection.start().catch(err => {
             Logger.WriteLog("Connection error: " + err.toString());
             console.error(err.toString());
-            electron_1.remote.dialog.showErrorBox("Connection Failure", "Unable to connect to server.");
-            var rcConfigPath = path.join(Electron.remote.app.getPath("userData"), "rc_config.json");
+            Electron.dialog.showErrorBox("Connection Failure", "Unable to connect to server.");
+            let rcConfigPath = path.join(Electron.app.getPath("userData"), "rc_config.json");
             if (fs.existsSync(rcConfigPath)) {
                 fs.unlinkSync(rcConfigPath);
             }
-            electron_1.remote.app.exit();
+            Electron.app.exit();
         }).then(() => {
-            if ((RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") && os_1.platform() == "win32") {
+            if ((RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") && (0, os_1.platform)() == "win32") {
                 DesktopWatcher.Watch();
             }
             this.HubConnection.invoke("GetIceConfiguration");
         });
         this.HubConnection.closedCallbacks.push((ev) => {
             if (RCClient_1.RCClient.Mode == "Normal") {
-                electron_1.remote.dialog.showErrorBox("Connection Failure", "Your connection was lost.");
-                electron_1.remote.app.exit();
+                Electron.dialog.showErrorBox("Connection Failure", "Your connection was lost.");
+                Electron.app.exit();
             }
             else if (RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") {
-                electron_1.remote.app.exit();
+                Electron.app.exit();
             }
         });
     }
     ;
-    ApplyMessageHandlers() {
-        this.HubConnection.on("GetOfferRequest", (viewerRequesterID, requesterName) => {
+    async ApplyMessageHandlers() {
+        this.HubConnection.on("GetOfferRequest", async (viewerRequesterID, requesterName) => {
             if (RCClient_1.RCClient.Mode == "Normal") {
-                var selection = Electron.remote.dialog.showMessageBox(Electron.remote.getCurrentWindow(), {
+                let selection = await Electron.dialog.showMessageBox(Electron.getCurrentWindow(), {
                     message: `Received connection request from ${requesterName}.  Accept?`,
                     title: "Connection Request",
                     buttons: ["Yes", "No"],
                     type: "question"
                 });
-                if (selection == 1) {
+                if (selection.response == 1) {
                     Logger.WriteLog(`Remote control request denied.  Requester Name: ${requesterName}.  Requester ID: ${viewerRequesterID}.`);
                     this.HubConnection.invoke("SendConnectionFailedToBrowser", viewerRequesterID);
                     return;
                 }
                 Logger.WriteLog(`Remote control request accepted.  Requester Name: ${requesterName}.  Requester ID: ${viewerRequesterID}.`);
-                var viewer = new Viewer_1.Viewer(viewerRequesterID, requesterName);
+                let viewer = new Viewer_1.Viewer(viewerRequesterID, requesterName);
                 viewer.InitRTC();
             }
             else if (RCClient_1.RCClient.Mode == "Unattended" || RCClient_1.RCClient.Mode == "DesktopSwitch") {
                 Logger.WriteLog(`Unattended remote control session started.  Requester ID: ${viewerRequesterID}.  Mode: ${RCClient_1.RCClient.Mode}.`);
-                var viewer = new Viewer_1.Viewer(viewerRequesterID, null);
+                let viewer = new Viewer_1.Viewer(viewerRequesterID, null);
                 viewer.InitRTC();
             }
         });
         this.HubConnection.on("IceConfiguration", (iceConfiguration) => {
-            Electron.ipcRenderer.sendSync("SetIceConfiguration", iceConfiguration);
+            electron_1.ipcRenderer.sendSync("SetIceConfiguration", iceConfiguration);
             if (RCClient_1.RCClient.Mode == "Unattended") {
                 this.HubConnection.invoke("NotifyConsoleRequesterUnattendedReady", RCClient_1.RCClient.ConsoleRequesterID);
             }
             else if (RCClient_1.RCClient.Mode == "DesktopSwitch") {
-                var viewersList = RCClient_1.RCClient.PreSwitchViewers.split(",");
+                let viewersList = RCClient_1.RCClient.PreSwitchViewers.split(",");
                 viewersList.forEach(x => {
                     this.HubConnection.invoke("NotifyRequesterDesktopSwitchCompleted", x);
                 });
@@ -97,24 +98,24 @@ class RCDeviceSockets {
             }
         });
         this.HubConnection.on("SessionID", (sessionID) => {
-            var formattedSessionID = "";
-            for (var i = 0; i < sessionID.length; i += 3) {
+            let formattedSessionID = "";
+            for (let i = 0; i < sessionID.length; i += 3) {
                 formattedSessionID += sessionID.substr(i, 3) + " ";
             }
             NormalPage_1.MySessionIDInput.value = formattedSessionID.trim();
         });
         this.HubConnection.on("SelectScreen", async (screenIndex, requesterID) => {
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             await viewer.SetDesktopStream(screenIndex);
         });
         this.HubConnection.on("RTCSession", (description, requesterID) => {
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
                 viewer.ReceiveRTCSession(description);
             }
         });
         this.HubConnection.on("IceCandidate", (candidate, requesterID) => {
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
                 viewer.ReceiveCandidate(candidate);
             }
@@ -123,158 +124,156 @@ class RCDeviceSockets {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                var absolutePoint = Utilities_1.GetAbsolutePointFromPercents(percentX, percentY, viewer);
-                Robot.moveMouse(absolutePoint.x, absolutePoint.y);
+                let absolutePoint = (0, Utilities_1.GetAbsolutePointFromPercents)(percentX, percentY, viewer);
+                electron_1.ipcRenderer.send("MoveMouse", absolutePoint.x, absolutePoint.y);
             }
         });
         this.HubConnection.on("MouseDown", (button, percentX, percentY, requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                var absolutePoint = Utilities_1.GetAbsolutePointFromPercents(percentX, percentY, viewer);
-                Robot.moveMouse(absolutePoint.x, absolutePoint.y);
-                Robot.mouseToggle("down", button);
+                let absolutePoint = (0, Utilities_1.GetAbsolutePointFromPercents)(percentX, percentY, viewer);
+                electron_1.ipcRenderer.send("MoveMouse", absolutePoint.x, absolutePoint.y);
+                electron_1.ipcRenderer.send("MouseToggle", "down", button);
             }
         });
         this.HubConnection.on("MouseUp", (button, percentX, percentY, requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                var absolutePoint = Utilities_1.GetAbsolutePointFromPercents(percentX, percentY, viewer);
-                Robot.moveMouse(absolutePoint.x, absolutePoint.y);
-                Robot.mouseToggle("up", button);
+                let absolutePoint = (0, Utilities_1.GetAbsolutePointFromPercents)(percentX, percentY, viewer);
+                electron_1.ipcRenderer.send("MoveMouse", absolutePoint.x, absolutePoint.y);
+                electron_1.ipcRenderer.send("MouseToggle", "up", button);
             }
         });
         this.HubConnection.on("TouchDown", (requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                Robot.mouseToggle("down", "left");
+                electron_1.ipcRenderer.send("MouseToggle", "down", "left");
             }
         });
         this.HubConnection.on("LongPress", (requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                Robot.mouseClick("right");
+                electron_1.ipcRenderer.send("MouseToggle", "down", "right");
             }
         });
         this.HubConnection.on("TouchMove", (moveX, moveY, requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                var mousePos = Robot.getMousePos();
-                Robot.moveMouse(mousePos.x + moveX, mousePos.y + moveY);
+                electron_1.ipcRenderer.send("MoveMouseRelative", moveX, moveY);
             }
         });
         this.HubConnection.on("TouchUp", (requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                Robot.mouseToggle("up", "left");
+                electron_1.ipcRenderer.send("MouseToggle", "up", "left");
             }
         });
         this.HubConnection.on("Tap", (requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                Robot.mouseClick("left");
+                electron_1.ipcRenderer.send("MouseClick", "left");
             }
         });
         this.HubConnection.on("MouseWheel", (deltaX, deltaY, requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
-                var modifiedX = (deltaX > 0 ? 120 : -120) * -1;
-                var modifiedY = (deltaY > 0 ? 120 : -120) * -1;
-                Robot.scrollMouse(modifiedX, modifiedY);
+                let modifiedX = (deltaX > 0 ? 120 : -120) * -1;
+                let modifiedY = (deltaY > 0 ? 120 : -120) * -1;
+                electron_1.ipcRenderer.send("ScrollMouse", modifiedX, modifiedY);
             }
         });
         this.HubConnection.on("KeyDown", (key, requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
                 key = key.replace("arrow", "");
-                Robot.keyToggle(key, "down");
+                electron_1.ipcRenderer.send("KeyToggle", key, "down");
             }
         });
         this.HubConnection.on("KeyUp", (key, requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
                 key = key.replace("arrow", "");
-                Robot.keyToggle(key, "up");
+                electron_1.ipcRenderer.send("KeyToggle", key, "up");
             }
         });
         this.HubConnection.on("KeyPress", (key, requesterID) => {
             if (RCClient_1.RCClient.Mode == "Normal" && NormalPage_1.ViewOnlyToggle.checked) {
                 return;
             }
-            var viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
+            let viewer = RCClient_1.RCClient.ViewerList.find(x => x.ViewerConnectionID == requesterID);
             if (viewer) {
                 key = key.replace("Arrow", "");
-                Robot.keyTap(key);
+                electron_1.ipcRenderer.send("KeyTap", key);
             }
         });
         this.HubConnection.on("SharedFileIDs", (fileIDs) => {
-            var prompted = false;
+            let prompted = false;
             fileIDs.forEach(x => {
-                var url = `https://${RCClient_1.RCClient.Host}/API/FileSharing/${x}`;
-                var xhr = new XMLHttpRequest();
+                let url = `https://${RCClient_1.RCClient.Host}/API/FileSharing/${x}`;
+                let xhr = new XMLHttpRequest();
                 xhr.responseType = "arraybuffer";
                 xhr.open("get", url);
-                xhr.onload = (ev) => {
-                    var cd = xhr.getResponseHeader("Content-Disposition");
-                    var filename = cd.split(";").find(x => x.trim().startsWith("filename")).split("=")[1];
-                    var sharedFilePath = path.join(Electron.remote.app.getPath("userData"), "SharedFiles");
+                xhr.onload = async () => {
+                    let cd = xhr.getResponseHeader("Content-Disposition");
+                    let filename = cd.split(";").find(x => x.trim().startsWith("filename")).split("=")[1];
+                    let sharedFilePath = path.join(Electron.app.getPath("userData"), "SharedFiles");
                     if (!fs.existsSync(sharedFilePath)) {
                         fs.mkdirSync(sharedFilePath, { recursive: true });
                     }
                     fs.writeFileSync(path.join(sharedFilePath, filename), new Buffer(xhr.response));
                     if (!prompted) {
                         prompted = true;
-                        electron_1.remote.dialog.showMessageBox({
+                        let result = await Electron.dialog.showMessageBox(Electron.getCurrentWindow(), {
                             message: `File downloaded to ${path.join(sharedFilePath, filename)}.  Copy path to clipboard?`,
                             title: "Download Complete",
                             type: "question",
                             buttons: ["Yes", "No"]
-                        }, (response) => {
-                            if (response == 0) {
-                                Electron.remote.clipboard.writeText(sharedFilePath);
-                            }
                         });
+                        if (result.response == 0) {
+                            Electron.clipboard.writeText(sharedFilePath);
+                        }
                     }
                 };
                 xhr.onerror = (ev) => {
                     Logger.WriteLog("Error downloading shared file.");
-                    electron_1.remote.dialog.showErrorBox("Download Error", "There was an error downloading the shared file.");
+                    Electron.dialog.showErrorBox("Download Error", "There was an error downloading the shared file.");
                 };
                 xhr.send();
             });
         });
     }
 }
-exports.RCDeviceSockets = RCDeviceSockets;
-//# sourceMappingURL=RCDeviceSockets.js.map
+exports.DeviceSocket = DeviceSocket;
+//# sourceMappingURL=DeviceSocket.js.map

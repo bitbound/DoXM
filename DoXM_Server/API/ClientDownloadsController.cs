@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DoXM_Server.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +18,12 @@ namespace DoXM_Server.API
     [Route("api/[controller]")]
     public class ClientDownloadsController : Controller
     {
-        public ClientDownloadsController(HostingEnvironment hostEnv, DataService dataService)
+        public ClientDownloadsController(IWebHostEnvironment hostEnv, DataService dataService)
         {
             HostEnv = hostEnv;
             DataService = dataService;
         }
-        private HostingEnvironment HostEnv { get; set; }
+        private IWebHostEnvironment HostEnv { get; set; }
         private DataService DataService { get; set; }
 
         

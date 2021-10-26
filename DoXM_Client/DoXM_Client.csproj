@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Copyright>Copyright ©  2018 Translucency Software</Copyright>
     <Description>Background service that maintains a connection to the DoXM server.  The service is used for remote support and maintenance by this computer's administrators.</Description>
@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Management.Infrastructure" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Management.Infrastructure" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.0-rc.2.21480.10" />
     <PackageReference Include="Microsoft.PowerShell.Commands.Diagnostics" Version="6.1.3" />
     <PackageReference Include="Microsoft.PowerShell.Commands.Management" Version="6.1.3" />
     <PackageReference Include="Microsoft.PowerShell.Commands.Utility" Version="6.1.3" />
