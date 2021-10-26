@@ -266,3 +266,5 @@ __pycache__/
 /DoXM_Server/wwwroot/Downloads/*.appimage
 *.pubxml
 /DoXM_Server/DoXM_Server.db
+DoXM_Server/DoXM_Server.db-shm
+DoXM_Server/DoXM_Server.db-wal
