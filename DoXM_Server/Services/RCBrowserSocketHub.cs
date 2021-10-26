@@ -46,9 +46,9 @@ namespace DoXM_Server.Services
                 return Context.Items["RequesterName"] as string;
             }
         }
-        public async Task GetIceConfiguration()
+        public Task<IceConfiguration> GetIceConfiguration()
         {
-            await Clients.Caller.SendAsync("IceConfiguration", AppConfig.IceConfiguration);
+            return Task.FromResult(AppConfig.IceConfiguration);
         }
         public async Task SendRTCSessionToDevice(object offer, string clientType, string clientID)
         {

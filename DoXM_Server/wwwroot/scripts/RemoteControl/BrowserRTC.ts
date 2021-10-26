@@ -1,4 +1,4 @@
-﻿import { RCBrowserSockets } from "./RCBrowserSockets.js";
+﻿import { RCBrowserSocket } from "./RCBrowserSocket.js";
 import * as UI from "./UI.js";
 import * as Utilities from "../Utilities.js";
 import { RemoteControl } from "./RemoteControl.js";
@@ -46,7 +46,7 @@ export class BrowserRTC {
             }
         }
         this.PeerConnection.onicecandidate = async (ev) => {
-            await RemoteControl.RCBrowserSockets.SendIceCandidate(ev.candidate);
+            await RemoteControl.RCBrowserSocket.SendIceCandidate(ev.candidate);
         };
     }
     Disconnect() {
@@ -59,7 +59,7 @@ export class BrowserRTC {
                 return this.PeerConnection.remoteDescription.sdp.length > 0;
             }).then(async () => {
                 await this.PeerConnection.setLocalDescription(await this.PeerConnection.createAnswer());
-                await RemoteControl.RCBrowserSockets.SendRTCSession(this.PeerConnection.localDescription);
+                await RemoteControl.RCBrowserSocket.SendRTCSession(this.PeerConnection.localDescription);
             })
         } else if (description.type === 'answer') {
             await this.PeerConnection.setRemoteDescription(description);

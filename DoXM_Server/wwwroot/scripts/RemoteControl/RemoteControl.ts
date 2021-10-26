@@ -1,15 +1,15 @@
 ﻿import * as Utilities from "../Utilities.js";
-import { RCBrowserSockets } from "./RCBrowserSockets.js";
+import { RCBrowserSocket } from "./RCBrowserSocket.js";
 import { BrowserRTC } from "./BrowserRTC.js";
 import * as UI from "./UI.js";
 
 
 var queryString = Utilities.ParseSearchString();
-var rcBrowserSockets = new RCBrowserSockets();
+var rcBrowserSocket = new RCBrowserSocket();
 var browserRTC = new BrowserRTC();
 
 export const RemoteControl = new class {
-    RCBrowserSockets = rcBrowserSockets;
+    RCBrowserSocket = rcBrowserSocket;
     BrowserRTC = browserRTC;
     ClientID = queryString["clientID"] ? decodeURIComponent(queryString["clientID"]) : undefined;
     ServiceID = queryString["serviceID"] ? decodeURIComponent(queryString["serviceID"]) : undefined;
@@ -22,17 +22,17 @@ export function ConnectToClient() {
     RemoteControl.ClientID = UI.SessionIDInput.value.split(" ").join("");
     RemoteControl.RequesterName = UI.RequesterNameInput.value;
     RemoteControl.Mode = "Normal";
-    RemoteControl.RCBrowserSockets.Connect();
+    RemoteControl.RCBrowserSocket.Connect();
     UI.StatusMessage.innerHTML = "Sending connection request...";
 }
 
 window.onload = () => {
-    UI.ApplyInputHandlers(rcBrowserSockets, browserRTC);
+    UI.ApplyInputHandlers(rcBrowserSocket, browserRTC);
 
     if (queryString["clientID"]) {
         RemoteControl.Mode = "Unattended";
         UI.ConnectBox.style.display = "none";
-        RemoteControl.RCBrowserSockets.Connect();
+        RemoteControl.RCBrowserSocket.Connect();
     }
     else if (queryString["sessionID"]) {
         UI.SessionIDInput.value = decodeURIComponent(queryString["sessionID"]);

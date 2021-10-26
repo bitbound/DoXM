@@ -1,4 +1,4 @@
-﻿import { RCBrowserSockets } from "./RCBrowserSockets.js";
+﻿import { RCBrowserSocket } from "./RCBrowserSocket.js";
 import { GetDistanceBetween } from "../Utilities.js";
 import { BrowserRTC } from "./BrowserRTC.js";
 import { ConnectToClient, RemoteControl } from "./RemoteControl.js";
@@ -27,7 +27,7 @@ var touchList = new Array<number>();
 var longPressTimeout: number;
 var lastTouchDistanceMoved = 0;
 
-export function ApplyInputHandlers(sockets: RCBrowserSockets, rtc: BrowserRTC) {
+export function ApplyInputHandlers(sockets: RCBrowserSocket, rtc: BrowserRTC) {
     document.querySelector("#menuButton").addEventListener("click", (ev) => {
         HorizontalBars.forEach(x => {
             x.classList.remove('open');
@@ -109,7 +109,7 @@ export function ApplyInputHandlers(sockets: RCBrowserSockets, rtc: BrowserRTC) {
             x.classList.remove('open');
         });
         ConnectionBar.classList.remove("open");
-        RemoteControl.RCBrowserSockets.SendCtrlAltDel();
+        RemoteControl.RCBrowserSocket.SendCtrlAltDel();
     });
     document.querySelector("#sessionIDInput, #nameInput").addEventListener("keypress", (ev: KeyboardEvent) => {
         if (ev.key.toLowerCase() == "enter") {
@@ -336,7 +336,7 @@ function uploadFiles(fileList: FileList) {
         FileTransferProgress.parentElement.setAttribute("hidden", "hidden");
         if (xhr.status === 200) {
             ShowMessage("File upload completed.");
-            RemoteControl.RCBrowserSockets.SendSharedFileIDs(xhr.responseText);
+            RemoteControl.RCBrowserSocket.SendSharedFileIDs(xhr.responseText);
         }
         else {
             ShowMessage("File upload failed.");

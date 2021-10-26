@@ -31,10 +31,8 @@ async function getStream(constraints: any, screenIndex: number): Promise<MediaSt
     let sources = await desktopCapturer.getSources({ types: ['screen']});
     if (sources?.length > screenIndex) {
         const source = sources[screenIndex];
-        if (source.name == "Electron") {
-            constraints.video.mandatory.chromeMediaSourceId = sources[0].id;
-            return await navigator.mediaDevices.getUserMedia(constraints as MediaStreamConstraints);
-        }
+        constraints.video.mandatory.chromeMediaSourceId = sources[0].id;
+        return await navigator.mediaDevices.getUserMedia(constraints as MediaStreamConstraints);
     }
     return null;
 }

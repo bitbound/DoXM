@@ -102,7 +102,7 @@ export function ApplyInputHandlers(sockets, rtc) {
             x.classList.remove('open');
         });
         ConnectionBar.classList.remove("open");
-        RemoteControl.RCBrowserSockets.SendCtrlAltDel();
+        RemoteControl.RCBrowserSocket.SendCtrlAltDel();
     });
     document.querySelector("#sessionIDInput, #nameInput").addEventListener("keypress", (ev) => {
         if (ev.key.toLowerCase() == "enter") {
@@ -308,7 +308,7 @@ function uploadFiles(fileList) {
         FileTransferProgress.parentElement.setAttribute("hidden", "hidden");
         if (xhr.status === 200) {
             ShowMessage("File upload completed.");
-            RemoteControl.RCBrowserSockets.SendSharedFileIDs(xhr.responseText);
+            RemoteControl.RCBrowserSocket.SendSharedFileIDs(xhr.responseText);
         }
         else {
             ShowMessage("File upload failed.");

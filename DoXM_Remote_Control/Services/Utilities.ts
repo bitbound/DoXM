@@ -1,5 +1,6 @@
 import { Viewer } from "../Models/Viewer";
-import * as Electron from "electron";
+import * as Electron from "@electron/remote";
+import { Point } from "electron";
 
 
 export async function TryUntil(action: () => void, rejectCondition: () => boolean) {
@@ -44,7 +45,7 @@ export async function When(predicate: () => boolean) {
     })
 }
 
-export function GetAbsolutePointFromPercents(percentX: number, percentY: number, viewer: Viewer): Electron.Point {
+export function GetAbsolutePointFromPercents(percentX: number, percentY: number, viewer: Viewer): Point {
     var currentScreen = Electron.screen.getAllDisplays()[viewer.CurrentScreenIndex];
     var absoluteX = (currentScreen.bounds.width * percentX) + currentScreen.bounds.x;
     var absoluteY = (currentScreen.bounds.height * percentY) + currentScreen.bounds.y;

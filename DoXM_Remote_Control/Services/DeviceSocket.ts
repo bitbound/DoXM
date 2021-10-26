@@ -25,15 +25,14 @@ export class DeviceSocket {
         }
         await WarmUpRTC();
         this.HubConnection = new SignalR.HubConnectionBuilder()
-            .withUrl(RCClient.ConnectionURL, {
-                proxy: `${RCClient.Proxy}`
-            } as any)
+            .withUrl(RCClient.ConnectionURL)
             .configureLogging(SignalR.LogLevel.Information)
             .build();
 
         await this.ApplyMessageHandlers();
+        
         this.HubConnection.start().catch(err => {
-            Logger.WriteLog("Connection error: " + err.toString());
+            Logger.WriteLog(`Error while trying to connect to host ${RCClient.ConnectionURL}: ${err.toString()}`);
             console.error(err.toString());
             Electron.dialog.showErrorBox("Connection Failure", "Unable to connect to server.");
             let rcConfigPath = path.join(Electron.app.getPath("userData"), "rc_config.json");

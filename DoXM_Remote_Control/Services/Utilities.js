@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StringifyCircular = exports.GetAbsolutePointFromPercents = exports.When = exports.TryUntil = void 0;
-const Electron = require("electron");
+const Electron = require("@electron/remote");
 async function TryUntil(action, rejectCondition) {
     return new Promise((resolve, reject) => {
         var tryAction = () => {

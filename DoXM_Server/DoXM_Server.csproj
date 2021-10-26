@@ -1485,10 +1485,6 @@
     <None Include="wwwroot\lib\qr\LICENSE" />
     <None Include="wwwroot\lib\qr\qrcode.js" />
     <None Include="wwwroot\lib\qr\qrcode.min.js" />
-    <None Include="wwwroot\lib\signalr\signalr.js" />
-    <None Include="wwwroot\lib\signalr\signalr.js.map" />
-    <None Include="wwwroot\lib\signalr\signalr.min.js" />
-    <None Include="wwwroot\lib\signalr\signalr.min.js.map" />
     <None Include="wwwroot\scripts\Models\CommandContext.ts">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -1526,7 +1522,7 @@
     <TypeScriptCompile Include="wwwroot\scripts\RemoteControl\UI.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\ResultsParser.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\RemoteControl\BrowserRTC.ts" />
-    <TypeScriptCompile Include="wwwroot\scripts\RemoteControl\RCBrowserSockets.ts" />
+    <TypeScriptCompile Include="wwwroot\scripts\RemoteControl\RCBrowserSocket.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\Store.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\UI.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\UserSettings.ts" />
@@ -1552,7 +1548,6 @@
   <ItemGroup>
     <Folder Include="Areas\Identity\Services\" />
     <Folder Include="Migrations\" />
-    <Folder Include="wwwroot\lib\types\" />
   </ItemGroup>
 
 </Project>

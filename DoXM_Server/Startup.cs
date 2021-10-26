@@ -119,7 +119,7 @@ namespace DoXM_Server
             {
                 endpoints.MapHub<BrowserSocketHub>("/BrowserHub");
                 endpoints.MapHub<DeviceSocketHub>("/DeviceHub");
-                endpoints.MapHub<RCDeviceSocketHub>("/RCBrowserHub");
+                endpoints.MapHub<RCDeviceSocketHub>("/RCDeviceHub");
                 endpoints.MapHub<RCBrowserSocketHub>("/RCBrowserHub");
 
                 endpoints.MapControllers();
