@@ -6,7 +6,9 @@
   "main": "Main.js",
   "scripts": {
     "start": "tsc && electron .",
-    "rebuild": "npm rebuild --runtime=electron --target=14.2.0 --disturl=https://atom.io/download/atom-shell --abi=97"
+    "rebuild": "npm rebuild --runtime=electron --target=14.2.0 --disturl=https://atom.io/download/atom-shell --abi=97",
+    "tsc": "tsc",
+    "build": "electron-builder"
   },
   "author": {
     "name": "Translucency Software",
