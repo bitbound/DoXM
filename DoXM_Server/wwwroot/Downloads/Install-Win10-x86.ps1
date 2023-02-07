@@ -103,7 +103,7 @@ function Install-DoXM {
 	else {
 		$ProgressPreference = 'SilentlyContinue'
 		Write-Log "Downloading client..."
-		Invoke-WebRequest -Uri "$HostName/Downloads/DoXM-Win10-x86.zip" -OutFile "$InstallPath\DoXM-Win10-x86.zip"
+		Invoke-WebRequest -Uri "$HostName/Downloads/DoXM-Win10-x86.zip" -OutFile "$InstallPath\DoXM-Win10-x86.zip" -UseBasicParsing
 		$ProgressPreference = 'Continue'
 
 	}

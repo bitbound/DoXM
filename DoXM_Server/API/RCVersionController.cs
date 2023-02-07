@@ -2,18 +2,19 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace DoXM_Server.API
 {
     [Route("api/[controller]")]
     public class RCVersionController : Controller
     {
-        public RCVersionController(IHostingEnvironment hostingEnv)
+        public RCVersionController(IWebHostEnvironment hostingEnv)
         {
-            this.HostingEnv = hostingEnv;
+            HostingEnv = hostingEnv;
         }
 
-        public IHostingEnvironment HostingEnv { get; }
+        public IWebHostEnvironment HostingEnv { get; }
 
         // GET: api/<controller>
         [HttpGet("{platform}")]
@@ -33,7 +34,12 @@ namespace DoXM_Server.API
                     break;
             }
             var version = FileVersionInfo.GetVersionInfo(Path.Combine(HostingEnv.WebRootPath, "Downloads", $"DoXM_Remote_Control.{ext}"));
-            return version.FileVersion.ToString();
+            if (!string.IsNullOrEmpty(version?.FileVersion))
+            {
+                return version.FileVersion;
+            }
+
+            return FileVersionInfo.GetVersionInfo("DoXM_Server.dll")?.FileVersion;
         }
     }
 }

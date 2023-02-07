@@ -9,7 +9,7 @@ const Robot = require("robotjs");
 Remote.initialize();
 // If TargetHost isn't specified, the remote control will ask the
 // user for a hostname on the first run.
-global["TargetHost"] = "";
+global["TargetHost"] = "doxm.jaredg.dev";
 global["ProxyServer"] = "";
 global["ServiceID"] = "";
 var args = processArgs();
@@ -160,26 +160,61 @@ electron_1.ipcMain.on("SetTargetHost", (ev, targetHost) => {
     });
 });
 electron_1.ipcMain.on("MoveMouse", (ev, x, y) => {
-    Robot.moveMouse(x, y);
+    try {
+        Robot.moveMouse(x, y);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 electron_1.ipcMain.on("MouseToggle", (ev, direction, button) => {
-    Robot.mouseToggle(direction, button);
+    try {
+        Robot.mouseToggle(direction, button);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 electron_1.ipcMain.on("MoveMouseRelative", (ev, moveX, moveY) => {
-    let mousePos = Robot.getMousePos();
-    Robot.moveMouse(mousePos.x + moveX, mousePos.y + moveY);
+    try {
+        let mousePos = Robot.getMousePos();
+        Robot.moveMouse(mousePos.x + moveX, mousePos.y + moveY);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 electron_1.ipcMain.on("MouseClick", (ev, button) => {
-    Robot.mouseClick(button);
+    try {
+        Robot.mouseClick(button);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 electron_1.ipcMain.on("ScrollMouse", (ev, deltaX, deltaY) => {
-    Robot.scrollMouse(deltaX, deltaY);
+    try {
+        Robot.scrollMouse(deltaX, deltaY);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 electron_1.ipcMain.on("KeyToggle", (ev, key, direction) => {
-    Robot.keyToggle(key, direction);
+    try {
+        Robot.keyToggle(key, direction);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 electron_1.ipcMain.on("KeyTap", (ev, key) => {
-    Robot.keyTap(key);
+    try {
+        Robot.keyTap(key);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

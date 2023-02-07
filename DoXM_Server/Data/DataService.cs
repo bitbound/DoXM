@@ -239,24 +239,49 @@ namespace DoXM_Server.Data
 
         public bool DoesUserHaveAccessToMachine(string machineID, DoXMUser doxmUser)
         {
-            return DoXMContext.Machines.Any(x =>
-                x.OrganizationID == doxmUser.OrganizationID &&
-                    (
-                        x.PermissionGroups.Count == 0 ||
-                        x.PermissionGroups.Any(y => doxmUser.PermissionGroups.Any(z => z.ID == y.ID))
-                    ) &&
-                x.ID == machineID);
+            if (doxmUser is null)
+            {
+                return false;
+            }
+
+            var userId = doxmUser.Id;
+            var orgId = doxmUser.OrganizationID;
+            var permissionGroups = doxmUser.PermissionGroups.Select(x => x.ID).ToArray();
+
+            return DoXMContext.Machines
+                .Include(x => x.PermissionGroups)
+                .Any(x =>
+                    x.ID == machineID &&
+                    x.OrganizationID == orgId &&
+                        (
+                            x.PermissionGroups.Count == 0 ||
+                            x.PermissionGroups.Any(y => permissionGroups.Contains(y.ID))
+                        ));
         }
 
         public string[] FilterMachineIDsByUserPermission(string[] machineIDs, DoXMUser doxmUser)
         {
+            if (doxmUser is null)
+            {
+                return Array.Empty<string>();
+            }
+
+            if (machineIDs?.Any() != true)
+            {
+                return Array.Empty<string>();
+            }
+
+            var userId = doxmUser.Id;
+            var orgId = doxmUser.OrganizationID;
+            var permissionGroups = doxmUser.PermissionGroups.Select(x => x.ID).ToArray();
+
             return DoXMContext.Machines.Where(x =>
+                    machineIDs.Contains(x.ID) &&
                     x.OrganizationID == doxmUser.OrganizationID &&
                     (
                         x.PermissionGroups.Count == 0 ||
-                        x.PermissionGroups.Any(y => doxmUser.PermissionGroups.Any(z => z.ID == y.ID))
-                    ) &&
-                    machineIDs.Contains(x.ID))
+                        x.PermissionGroups.Any(y => permissionGroups.Contains(y.ID))
+                    ))
                 .Select(x => x.ID)
                 .ToArray();
         }

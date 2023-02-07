@@ -21,16 +21,6 @@ param (
     [string]$CurrentVersion = ""
 )
 
-
-$ErrorActionPreference = "Stop"
-$Year = (Get-Date).Year.ToString()
-$Month = (Get-Date).Month.ToString().PadLeft(2, "0")
-$Day = (Get-Date).Day.ToString().PadLeft(2, "0")
-$Hour = (Get-Date).Hour.ToString().PadLeft(2, "0")
-$Minute = (Get-Date).Minute.ToString().PadLeft(2, "0")
-$CurrentVersion = "$Year.$Month.$Day.$Hour$Minute"
-
-
 function Replace-LineInFile($FilePath, $MatchPattern, $ReplaceLineWith, $MaxCount = -1){
     [string[]]$Content = Get-Content -Path $FilePath
     $Count = 0
@@ -49,6 +39,16 @@ function Replace-LineInFile($FilePath, $MatchPattern, $ReplaceLineWith, $MaxCoun
 
 $Root = (Get-Item -Path $PSScriptRoot).Parent.FullName
 Set-Location -Path $Root
+
+$VersionString = git show -s --format=%ci
+$VersionDate = [DateTimeOffset]::Parse($VersionString)
+
+$Year = $VersionDate.Year.ToString()
+$Month = $VersionDate.Month.ToString().PadLeft(2, "0")
+$Day = $VersionDate.Day.ToString().PadLeft(2, "0")
+$Hour = $VersionDate.Hour.ToString().PadLeft(2, "0")
+$Minute = $VersionDate.Minute.ToString().PadLeft(2, "0")
+$CurrentVersion = "$Year.$Month.$Day"
 
 # Clear publish folders.
 if ((Test-Path -Path "$Root\DoXM_Client\bin\publish\win10-x64") -eq $true) {
@@ -93,7 +93,7 @@ $Package | ConvertTo-Json | Out-File -FilePath ".\package.json" -Encoding ascii
    
 
 Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" } | Remove-Item -Force
-.\node_modules\.bin\electron-builder --win --ia32
+npm run --openssl_fips='' build-x86
 Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" }| Rename-Item -NewName "DoXM_Remote_Control_x86.exe" -Force
 Pop-Location
 Move-Item -Path "$Root\DoXM_Remote_Control\dist\DoXM_Remote_Control_x86.exe" -Destination "$Root\DoXM_Server\wwwroot\Downloads\DoXM_Remote_Control_x86.exe" -Force
@@ -124,7 +124,7 @@ Get-ChildItem -Path "$Root\DoXM_Remote_Control\dist\linux-unpacked\" | ForEach-O
 
 Push-Location -Path "$Root\DoXM_Remote_Control\"
 Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" } | Remove-Item -Force
-.\node_modules\.bin\electron-builder --win --x64
+npm run --openssl_fips='' build-x64
 Get-Item -Path ".\dist\*" | Where-Object { $_.Name -ilike "*.exe*" } | Rename-Item -NewName "DoXM_Remote_Control.exe" -Force
 Replace-LineInFile -FilePath "Main.ts" -MatchPattern "global[`"TargetHost`"] =" -ReplaceLineWith "global[`"TargetHost`"] = `"`";" -MaxCount 1
 Pop-Location

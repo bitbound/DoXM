@@ -20,7 +20,7 @@ export function Connect() {
     }).then(() => {
         Connected = true;
     });
-    this.Connection.closedCallbacks.push((ev) => {
+    this.Connection.onclose(() => {
         Connected = false;
         if (!Store.IsDisconnectExpected) {
             UI.ShowModal("Connection Failure", "Your connection was lost. Refresh the page or enter a command to reconnect.");

@@ -23,6 +23,8 @@ using DoXM_Library.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Net;
+using System.Text.Json;
 
 namespace DoXM_Server
 {
@@ -36,7 +38,6 @@ namespace DoXM_Server
 
         public IConfiguration Configuration { get; }
         private bool IsDev { get; set; }
-        private DataService DataService { get; set; }
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -72,7 +73,21 @@ namespace DoXM_Server
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.All;
+                options.ForwardLimit = null;
+
+                // Default Docker host. We want to allow forwarded headers from this address.
+                options.KnownProxies.Add(IPAddress.Parse("172.17.0.1"));
+            });
+
             services.AddRazorPages();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
 
             services.AddSignalR(options =>
                 {
@@ -82,6 +97,8 @@ namespace DoXM_Server
                 .AddJsonProtocol(options =>
                 {
                     options.PayloadSerializerOptions.PropertyNameCaseInsensitive = true;
+                    // For PascalCasing.
+                    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
                 });
 
             services.AddLogging();
@@ -95,7 +112,8 @@ namespace DoXM_Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataService dataService)
         {
-            DataService = dataService;
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -114,6 +132,7 @@ namespace DoXM_Server
             app.UseRouting();
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

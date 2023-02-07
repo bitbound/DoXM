@@ -10,9 +10,25 @@ namespace DoXM_Client.Client
 {
     public static class Logger
     {
+        private static string LogDir
+        {
+            get
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    return Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DoXM", "Logs")).FullName;
+                }
+                else
+                {
+                    return Directory.CreateDirectory("/var/log/doxm").FullName;
+                }
+            }
+        }
+        private static string LogPath => Path.Combine(LogDir, $"ClientLog_{DateTime.Now:yyyy-MM-dd}.log");
+
         public static void Write(string message)
         {
-            var path = Path.Combine(Path.GetTempPath(), "DoXM_Logs.txt");
+            Console.WriteLine(message);
 
             var jsoninfo = new
             {
@@ -20,23 +36,23 @@ namespace DoXM_Client.Client
                 Timestamp = DateTime.Now.ToString(),
                 Message = message
             };
-            if (File.Exists(path))
+            if (File.Exists(LogPath))
             {
-                var fi = new FileInfo(path);
+                var fi = new FileInfo(LogPath);
                 while (fi.Length > 1000000)
                 {
-                    var content = File.ReadAllLines(path);
-                    File.WriteAllLines(path, content.Skip(10));
-                    fi = new FileInfo(path);
+                    var content = File.ReadAllLines(LogPath);
+                    File.WriteAllLines(LogPath, content.Skip(10));
+                    fi = new FileInfo(LogPath);
                 }
             }
-            File.AppendAllText(path, JsonConvert.SerializeObject(jsoninfo) + Environment.NewLine);
+            File.AppendAllText(LogPath, JsonConvert.SerializeObject(jsoninfo) + Environment.NewLine);
         }
 
         public static void Write(Exception ex)
         {
+            Console.WriteLine($"Exception: {ex.Message}");
             var exception = ex;
-            var path = Path.Combine(Path.GetTempPath(), "DoXM_Logs.txt");
 
             while (exception != null)
             {
@@ -48,17 +64,17 @@ namespace DoXM_Client.Client
                     Source = exception?.Source,
                     StackTrace = exception?.StackTrace,
                 };
-                if (File.Exists(path))
+                if (File.Exists(LogPath))
                 {
-                    var fi = new FileInfo(path);
+                    var fi = new FileInfo(LogPath);
                     while (fi.Length > 1000000)
                     {
-                        var content = File.ReadAllLines(path);
-                        File.WriteAllLines(path, content.Skip(10));
-                        fi = new FileInfo(path);
+                        var content = File.ReadAllLines(LogPath);
+                        File.WriteAllLines(LogPath, content.Skip(10));
+                        fi = new FileInfo(LogPath);
                     }
                 }
-                File.AppendAllText(path, JsonConvert.SerializeObject(jsonError) + Environment.NewLine);
+                File.AppendAllText(LogPath, JsonConvert.SerializeObject(jsonError) + Environment.NewLine);
                 exception = exception.InnerException;
             }
         }

@@ -6,6 +6,7 @@ using DoXM_Library.Win32_Classes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -16,7 +17,7 @@ namespace DoXM_Client
 {
     public class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             SetWorkingDirectory();
@@ -47,20 +48,17 @@ namespace DoXM_Client
                 Environment.Exit(0);
             }
 
-            if (OSUtils.IsWindows)
+            if (OSUtils.IsWindows && Process.GetCurrentProcess().SessionId == 0)
             {
                 //ClientSocket.Connect();
                 ServiceBase.Run(new WindowsService());
             }
             else
             {
-                ClientSocket.Connect();
+                await ClientSocket.Connect();
             }
-           
-            while (true)
-            {
-                Console.Read();
-            }
+
+            await Task.Delay(-1);
         }
 
         private static Dictionary<string,string> ProcessArgs(string[] args)

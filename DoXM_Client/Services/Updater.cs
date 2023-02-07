@@ -38,6 +38,11 @@ namespace DoXM_Client.Services
         {
             try
             {
+                if (Utilities.GetConnectionInfo().Host.Contains("localhost"))
+                {
+                    return;
+                }
+
                 if (OSUtils.IsLinux)
                 {
                     return;
@@ -143,6 +148,13 @@ namespace DoXM_Client.Services
                     }
                 }
                 Logger.Write("Service Updater: Update completed.");
+
+                var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
+                if (File.Exists(rcBinaryPath))
+                {
+                    Logger.Write("Removing remote control binary.");
+                    File.Delete(rcBinaryPath);
+                }
             }
             catch (Exception ex)
             {

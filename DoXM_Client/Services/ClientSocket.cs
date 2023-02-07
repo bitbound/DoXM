@@ -20,48 +20,70 @@ namespace DoXM_Client.Services
     public static class ClientSocket
     {
         public static bool IsServerVerified { get; set; }
-        public static async void Connect()
+        public static async Task Connect()
         {
-            ConnectionInfo = Utilities.GetConnectionInfo();
+            while (true)
+            {
+                try
+                {
+                    ConnectionInfo = Utilities.GetConnectionInfo();
 
-            HubConnection = new HubConnectionBuilder()
-                .WithUrl(ConnectionInfo.Host + "/DeviceHub", options=> {
-                    if (!string.IsNullOrWhiteSpace(ConnectionInfo.ProxyUrl))
+                    if (HubConnection is not null)
                     {
-                        options.Proxy = new WebProxy(ConnectionInfo.ProxyUrl, ConnectionInfo.ProxyPort);
+                        await HubConnection.DisposeAsync();
                     }
-                })
-                .Build();
-            HubConnection.Closed += HubConn_Closed;
+                    HubConnection = new HubConnectionBuilder()
+                        .WithUrl(ConnectionInfo.Host + "/DeviceHub", options => {
+                            if (!string.IsNullOrWhiteSpace(ConnectionInfo.ProxyUrl))
+                            {
+                                options.Proxy = new WebProxy(ConnectionInfo.ProxyUrl, ConnectionInfo.ProxyPort);
+                            }
+                        })
+                        .WithAutomaticReconnect(new RetryPolicy())
+                        .Build();
+                    HubConnection.Reconnected += HubConnection_Reconnected;
 
-            RegisterMessageHandlers(HubConnection);
 
-            await HubConnection.StartAsync();
+                    RegisterMessageHandlers(HubConnection);
 
+                    await HubConnection.StartAsync();
+
+                    var machine = Machine.Create(ConnectionInfo);
+
+                    await HubConnection.InvokeAsync("MachineCameOnline", machine);
+
+                    if (string.IsNullOrWhiteSpace(ConnectionInfo.ServerVerificationToken))
+                    {
+                        IsServerVerified = true;
+                        ConnectionInfo.ServerVerificationToken = Guid.NewGuid().ToString();
+                        await HubConnection.InvokeAsync("SetServerVerificationToken", ConnectionInfo.ServerVerificationToken);
+                        Utilities.SaveConnectionInfo(ConnectionInfo);
+                        Updater.CheckForCoreUpdates();
+                    }
+                    else
+                    {
+                        await HubConnection.InvokeAsync("SendServerVerificationToken");
+                    }
+
+                    HeartbeatTimer?.Stop();
+                    HeartbeatTimer = new Timer(300000);
+                    HeartbeatTimer.Elapsed += HeartbeatTimer_Elapsed;
+                    HeartbeatTimer.Start();
+                    Logger.Write("Connected to server.");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(ex);
+                }
+            }
+        }
+
+        private static async Task HubConnection_Reconnected(string arg)
+        {
             var machine = Machine.Create(ConnectionInfo);
-
             await HubConnection.InvokeAsync("MachineCameOnline", machine);
-
-            if (string.IsNullOrWhiteSpace(ConnectionInfo.ServerVerificationToken))
-            {
-                IsServerVerified = true;
-                ConnectionInfo.ServerVerificationToken = Guid.NewGuid().ToString();
-                await HubConnection.InvokeAsync("SetServerVerificationToken", ConnectionInfo.ServerVerificationToken);
-                Utilities.SaveConnectionInfo(ConnectionInfo);
-                Updater.CheckForCoreUpdates();
-            }
-            else
-            {
-                await HubConnection.InvokeAsync("SendServerVerificationToken");
-            }
-
-            if (HeartbeatTimer != null)
-            {
-                HeartbeatTimer.Stop();
-            }
-            HeartbeatTimer = new Timer(300000);
-            HeartbeatTimer.Elapsed += HeartbeatTimer_Elapsed;
-            HeartbeatTimer.Start();
+            Updater.CheckForCoreUpdates();
         }
 
         private static void RegisterMessageHandlers(HubConnection hubConnection)
@@ -153,24 +175,24 @@ namespace DoXM_Client.Services
                 }
                 try
                 {
-                    var latestVersion = await Updater.GetLatestRCVersion();
-                    var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
-                    var shouldUpdate = false;
+                    //var latestVersion = await Updater.GetLatestRCVersion();
+                    //var shouldUpdate = false;
 
-                    if (!File.Exists(rcBinaryPath))
-                    {
-                        shouldUpdate = true;
-                    }
-                    else
-                    {
-                        var fileVersion = FileVersionInfo.GetVersionInfo(rcBinaryPath)?.FileVersion;
-                        if (!string.IsNullOrWhiteSpace(fileVersion) && fileVersion?.ToString() != latestVersion)
-                        {
-                            shouldUpdate = true;
-                        }
-                    }
+                    //if (!File.Exists(rcBinaryPath))
+                    //{
+                    //    shouldUpdate = true;
+                    //}
+                    //else
+                    //{
+                    //    var fileVersion = FileVersionInfo.GetVersionInfo(rcBinaryPath)?.FileVersion;
+                    //    if (!string.IsNullOrWhiteSpace(fileVersion) && fileVersion?.ToString() != latestVersion)
+                    //    {
+                    //        shouldUpdate = true;
+                    //    }
+                    //}
                     
-                    if (shouldUpdate)
+                    var rcBinaryPath = Path.Combine(Utilities.AppDataDir, "remote_control", OSUtils.RemoteControlExecutableFileName);
+                    if (!File.Exists(rcBinaryPath))
                     {
                         await hubConnection.InvokeAsync("DisplayConsoleMessage", "A new version needs to be downloaded on the client machine.", requesterID);
                         await Updater.DownloadLatestRCVersion(hubConnection, requesterID);
@@ -326,14 +348,17 @@ namespace DoXM_Client.Services
             var currentInfo = Machine.Create(ConnectionInfo);
             HubConnection.InvokeAsync("MachineHeartbeat", currentInfo);
         }
-        private static async Task HubConn_Closed(Exception arg)
-        {
-            await Task.Delay(new Random().Next(5000, 30000));
-            Connect();
-        }
         private static HubConnection HubConnection { get; set; }
 
         private static ConnectionInfo ConnectionInfo { get; set; }
         public static Timer HeartbeatTimer { get; private set; }
+
+        private class RetryPolicy : IRetryPolicy
+        {
+            public TimeSpan? NextRetryDelay(RetryContext retryContext)
+            {
+                return TimeSpan.FromSeconds(5);
+            }
+        }
     }
 }

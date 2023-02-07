@@ -38,11 +38,11 @@ export function AddOrUpdateMachine(machine: Machine) {
                             .replace("false", "<span class='glyphicon glyphicon-remove'></span>")}</td>
                     <td>${machine.MachineName}</td>
                     <td>${machine.CurrentUser}</td>
-                    <td>${new Date(machine.LastOnline).toLocaleString()}</td>
+                    <td>${new Date(machine.LastOnline)?.toLocaleDateString()}</td>
                     <td>${machine.Platform}</td>
                     <td>${machine.OSDescription}</td>
                     <td>${Math.round(machine.FreeStorage * 100)}%</td>
-                    <td>${machine.TotalStorage.toLocaleString()}</td>
+                    <td>${machine.TotalStorage?.toLocaleString()}</td>
                     <td>${Math.round(machine.FreeMemory * 100)}%</td>
                     <td>${machine.TotalMemory.toLocaleString()}</td>
                     <td><input type="text" class="machine-tag" value="${machine.Tags}" /></td>`;

@@ -168,32 +168,67 @@ ipcMain.on("SetTargetHost", (ev, targetHost) => {
 });
 
 ipcMain.on("MoveMouse", (ev, x: number, y: number) => {
-    Robot.moveMouse(x, y);
+    try{
+        Robot.moveMouse(x, y);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 
 ipcMain.on("MouseToggle", (ev, direction: string, button: string) => {
-    Robot.mouseToggle(direction, button);
+    try{
+        Robot.mouseToggle(direction, button);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 
 ipcMain.on("MoveMouseRelative", (ev, moveX: number, moveY: number) => {
-    let mousePos = Robot.getMousePos();
-    Robot.moveMouse(mousePos.x + moveX, mousePos.y + moveY);
+    try{
+        let mousePos = Robot.getMousePos();
+        Robot.moveMouse(mousePos.x + moveX, mousePos.y + moveY);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 
 ipcMain.on("MouseClick", (ev, button: string) => {
-    Robot.mouseClick(button);
+    try{
+        Robot.mouseClick(button);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 
 ipcMain.on("ScrollMouse", (ev, deltaX: number, deltaY: number) => {
-    Robot.scrollMouse(deltaX, deltaY);
+    try{
+        Robot.scrollMouse(deltaX, deltaY);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 
 ipcMain.on("KeyToggle", (ev, key: string, direction: string) => {
-    Robot.keyToggle(key, direction);
+    try{
+        Robot.keyToggle(key, direction);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 
 ipcMain.on("KeyTap", (ev, key: string) => {
-    Robot.keyTap(key);
+    try{
+        Robot.keyTap(key);
+    }
+    catch (ex) {
+        console.error(ex);
+    }
 });
 
 app.on('window-all-closed', () => {

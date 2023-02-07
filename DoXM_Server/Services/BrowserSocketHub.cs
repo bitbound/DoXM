@@ -123,16 +123,6 @@ namespace DoXM_Server.Services
             }
             await Groups.AddToGroupAsync(Context.ConnectionId, DoXMUser.Organization.ID);
             await Clients.Caller.SendAsync("UserOptions", DoXMUser.UserOptions);
-            if (AppConfig.ShowMessageOfTheDay)
-            {
-                try
-                {
-                    var wc = new WebClient();
-                    var message = await wc.DownloadStringTaskAsync(new Uri("https://doxm.app/api/messageoftheday"));
-                    await Clients.Caller.SendAsync("DisplayConsoleHTML", message);
-                }
-                catch { }
-            }
             await base.OnConnectedAsync();
         }
 

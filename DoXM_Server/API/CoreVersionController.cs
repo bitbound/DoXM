@@ -10,18 +10,18 @@ namespace DoXM_Server.API
     [Route("api/[controller]")]
     public class CoreVersionController : Controller
     {
-        public CoreVersionController(IHostingEnvironment hostingEnv)
+        public CoreVersionController(IWebHostEnvironment hostingEnv)
         {
-            this.HostingEnv = hostingEnv;
+            HostingEnv = hostingEnv;
         }
 
-        public IHostingEnvironment HostingEnv { get; }
+        public IWebHostEnvironment HostingEnv { get; }
 
         // GET: api/<controller>
         [HttpGet("{platform}")]
         public string Get(string platform)
         {
-            string fileName = "";
+            var fileName = "";
             switch (platform)
             {
                 case "Windows":
@@ -33,14 +33,17 @@ namespace DoXM_Server.API
                 default:
                     return "";
             }
-            using (var fs = new FileStream(Path.Combine(HostingEnv.WebRootPath, "Downloads", fileName), FileMode.Open))
+            using var fs = new FileStream(Path.Combine(HostingEnv.WebRootPath, "Downloads", fileName), FileMode.Open);
+            var zipArchive = new ZipArchive(fs);
+            var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            zipArchive.GetEntry("DoXM_Client.dll").ExtractToFile(tempFile, true);
+            var version = FileVersionInfo.GetVersionInfo(tempFile);
+            if (!string.IsNullOrWhiteSpace(version?.FileVersion))
             {
-                var zipArchive = new ZipArchive(fs);
-                var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                zipArchive.GetEntry("DoXM_Client.dll").ExtractToFile(tempFile, true);
-                var version = FileVersionInfo.GetVersionInfo(tempFile);
-                return version.FileVersion.ToString();
+                return version.FileVersion;
             }
+
+            return FileVersionInfo.GetVersionInfo("DoXM_Server.dll")?.FileVersion;
         }
     }
 }

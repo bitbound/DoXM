@@ -6,9 +6,12 @@
   "main": "Main.js",
   "scripts": {
     "start": "tsc && electron .",
-    "rebuild": "npm rebuild --runtime=electron --target=14.2.0 --disturl=https://atom.io/download/atom-shell --abi=97",
+    "rebuild": "npm rebuild --runtime=electron --target=14.2.0 --disturl=https://atom.io/download/atom-shell --abi=83",
+    "electron-rebuild": ".\\node_modules\\.bin\\electron-rebuild.cmd",
     "tsc": "tsc",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "build-x86": "electron-builder build --win --ia32",
+    "build-x64": "electron-builder build --win --x64"
   },
   "author": {
     "name": "Translucency Software",
@@ -24,11 +27,12 @@
   "devDependencies": {
     "electron": "^14.2.0",
     "electron-builder": "^22.13.1",
+    "electron-rebuild": "^3.2.9",
     "npm-check-updates": "^11.8.5"
   },
   "dependencies": {
     "@electron/remote": "^2.0.1",
-    "@microsoft/signalr": "^5.0.11",
+    "@microsoft/signalr": "^6.0.13",
     "robotjs": "^0.6.0",
     "tslib": "^2.3.1",
     "typescript": "^4.4.4"
