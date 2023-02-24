@@ -75,6 +75,7 @@ namespace DoXM_Client.Services
                 catch (Exception ex)
                 {
                     Logger.Write(ex);
+                    await Task.Delay(5_000);
                 }
             }
         }

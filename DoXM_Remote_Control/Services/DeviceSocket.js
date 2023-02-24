@@ -45,7 +45,7 @@ class DeviceSocket {
             }
             this.HubConnection.invoke("GetIceConfiguration");
         });
-        this.HubConnection.closedCallbacks.push((ev) => {
+        this.HubConnection.onclose(() => {
             if (RCClient_1.RCClient.Mode == "Normal") {
                 Electron.dialog.showErrorBox("Connection Failure", "Your connection was lost.");
                 Electron.app.exit();

@@ -24,7 +24,7 @@ export class RCBrowserSocket {
             RemoteControl.BrowserRTC.Init();
             this.SendOfferRequestToDevice();
         })
-        this.Connection.closedCallbacks.push((ev) => {
+        this.Connection.onclose(() => {
             console.log("Connection closed.");
             UI.StatusMessage.innerHTML = "Connection closed.";
             UI.ScreenViewer.setAttribute("hidden", "hidden");

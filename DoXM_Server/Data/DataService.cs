@@ -30,107 +30,6 @@ namespace DoXM_Server.Data
         private UserManager<DoXMUser> UserManager { get; set; }
 
 
-        internal DoXMUserOptions GetUserOptions(string userName)
-        {
-            return DoXMContext.Users
-                    .FirstOrDefault(x => x.UserName == userName)
-                    .UserOptions;
-        }
-
-        internal bool JoinViaInvitation(string userName, string inviteID)
-        {
-            var invite = DoXMContext.InviteLinks
-                .Include(x => x.Organization)
-                .ThenInclude(x => x.DoXMUsers)
-                .FirstOrDefault(x =>
-                    x.InvitedUser.ToLower() == userName.ToLower() &&
-                    x.ID == inviteID);
-
-            if (invite == null)
-            {
-                return false;
-            }
-
-            var user = DoXMContext.Users
-                .Include(x => x.Organization)
-                .FirstOrDefault(x => x.UserName == userName);
-
-            user.Organization = invite.Organization;
-            user.OrganizationID = invite.Organization.ID;
-            user.IsAdministrator = invite.IsAdmin;
-            user.PermissionGroups.Clear();
-            invite.Organization.DoXMUsers.Add(user);
-
-            DoXMContext.SaveChanges();
-
-            DoXMContext.InviteLinks.Remove(invite);
-            DoXMContext.SaveChanges();
-            return true;
-        }
-
-        internal bool DoesGroupExist(string userID, string groupName)
-        {
-            var user = DoXMContext.Users
-                        .Include(x => x.Organization)
-                        .ThenInclude(x => x.PermissionGroups)
-                        .FirstOrDefault(x => x.Id == userID);
-            return user.Organization.PermissionGroups.Exists(x => x.Name.ToLower() == groupName.ToLower());
-        }
-
-        internal void RemovePermissionFromMachines(string userID, string[] machineIDs, string groupName)
-        {
-            var user = DoXMContext.Users
-                      .Include(x => x.Organization)
-                      .ThenInclude(x => x.Machines)
-                      .FirstOrDefault(x => x.Id == userID);
-
-            var group = user.Organization.PermissionGroups.FirstOrDefault(x => x.Name.ToLower() == groupName.ToLower());
-            foreach (var machineID in machineIDs)
-            {
-                if (user.Organization.Machines.Exists(x => x.ID == machineID))
-                {
-                    var machine = DoXMContext.Machines
-                                .Include(x => x.PermissionGroups)
-                                .FirstOrDefault(x => x.ID == machineID);
-                    machine.PermissionGroups.RemoveAll(x => x.ID == group.ID);
-                    DoXMContext.Entry(machine).State = EntityState.Modified;
-                }
-            }
-            DoXMContext.SaveChanges();
-        }
-
-        internal void AddPermissionToMachines(string userID, string[] machineIDs, string groupName)
-        {
-            var user = DoXMContext.Users
-                       .Include(x => x.Organization)
-                       .Include(x => x.Organization)
-                       .ThenInclude(x => x.Machines)
-                       .FirstOrDefault(x => x.Id == userID);
-
-            var group = user.Organization.PermissionGroups.FirstOrDefault(x => x.Name.ToLower() == groupName.ToLower());
-            foreach (var machineID in machineIDs)
-            {
-                if (user.Organization.Machines.Exists(x => x.ID == machineID))
-                {
-                    var machine = DoXMContext.Machines
-                                .Include(x => x.PermissionGroups)
-                                .FirstOrDefault(x => x.ID == machineID);
-                    if (!machine.PermissionGroups.Exists(x => x.ID == group.ID))
-                    {
-                        machine.PermissionGroups.Add(group);
-                        DoXMContext.Entry(machine).State = EntityState.Modified;
-                    }
-                }
-            }
-            DoXMContext.SaveChanges();
-        }
-
-        internal void UpdateUserOptions(string userName, DoXMUserOptions options)
-        {
-            DoXMContext.Users.FirstOrDefault(x => x.UserName == userName).UserOptions = options;
-            DoXMContext.SaveChanges();
-        }
-
         public void AddOrUpdateCommandContext(CommandContext commandContext)
         {
             var existingContext = DoXMContext.CommandContexts.Find(commandContext.ID);
@@ -145,43 +44,6 @@ namespace DoXM_Server.Data
                 DoXMContext.CommandContexts.Add(commandContext);
             }
             DoXMContext.SaveChanges();
-        }
-
-        internal void CleanupOldRecords()
-        {
-            if (AppConfig.DataRetentionInDays > 0)
-            {
-                DoXMContext.EventLogs
-                    .Where(x => DateTime.Now - x.TimeStamp > TimeSpan.FromDays(AppConfig.DataRetentionInDays))
-                    .ForEachAsync(x =>
-                    {
-                        DoXMContext.Remove(x);
-                    });
-
-                DoXMContext.CommandContexts
-                    .Where(x => DateTime.Now - x.TimeStamp > TimeSpan.FromDays(AppConfig.DataRetentionInDays))
-                    .ForEachAsync(x =>
-                    {
-                        DoXMContext.Remove(x);
-                    });
-
-                DoXMContext.Machines
-                    .Where(x => DateTime.Now - x.LastOnline > TimeSpan.FromDays(AppConfig.DataRetentionInDays))
-                    .ForEachAsync(x =>
-                    {
-                        DoXMContext.Remove(x);
-                    });
-            }
-        }
-
-        internal void SetServerVerificationToken(string machineID, string verificationToken)
-        {
-            var machine = DoXMContext.Machines.Find(machineID);
-            if (machine != null)
-            {
-                machine.ServerVerificationToken = verificationToken;
-                DoXMContext.SaveChanges();
-            }
         }
 
         public bool AddOrUpdateMachine(Machine machine)
@@ -324,35 +186,6 @@ namespace DoXM_Server.Data
             return machines;
         }
 
-        public Machine GetMachine(string userID, string machineID)
-        {
-            var orgID = GetUserByID(userID).OrganizationID;
-
-            return DoXMContext.Machines
-                .Where(x => x.OrganizationID == orgID && x.ID == machineID)
-                .Select(x => new Machine()
-                {
-                    CurrentUser = x.CurrentUser,
-                    Drives = x.Drives,
-                    FreeMemory = x.FreeMemory,
-                    FreeStorage = x.FreeStorage,
-                    ID = x.ID,
-                    Is64Bit = x.Is64Bit,
-                    IsOnline = x.IsOnline,
-                    LastOnline = x.LastOnline,
-                    MachineName = x.MachineName,
-                    OrganizationID = x.OrganizationID,
-                    OSArchitecture = x.OSArchitecture,
-                    OSDescription = x.OSDescription,
-                    PermissionGroups = x.PermissionGroups,
-                    Platform = x.Platform,
-                    ProcessorCount = x.ProcessorCount,
-                    Tags = x.Tags,
-                    TotalMemory = x.TotalMemory,
-                    TotalStorage = x.TotalStorage
-                }).FirstOrDefault();
-        }
-
         public IEnumerable<PermissionGroup> GetAllPermissions(string userName)
         {
             return DoXMContext.Users
@@ -383,6 +216,35 @@ namespace DoXM_Server.Data
         public string GetDefaultPrompt()
         {
             return AppConfig.DefaultPrompt;
+        }
+
+        public Machine GetMachine(string userID, string machineID)
+        {
+            var orgID = GetUserByID(userID).OrganizationID;
+
+            return DoXMContext.Machines
+                .Where(x => x.OrganizationID == orgID && x.ID == machineID)
+                .Select(x => new Machine()
+                {
+                    CurrentUser = x.CurrentUser,
+                    Drives = x.Drives,
+                    FreeMemory = x.FreeMemory,
+                    FreeStorage = x.FreeStorage,
+                    ID = x.ID,
+                    Is64Bit = x.Is64Bit,
+                    IsOnline = x.IsOnline,
+                    LastOnline = x.LastOnline,
+                    MachineName = x.MachineName,
+                    OrganizationID = x.OrganizationID,
+                    OSArchitecture = x.OSArchitecture,
+                    OSDescription = x.OSDescription,
+                    PermissionGroups = x.PermissionGroups,
+                    Platform = x.Platform,
+                    ProcessorCount = x.ProcessorCount,
+                    Tags = x.Tags,
+                    TotalMemory = x.TotalMemory,
+                    TotalStorage = x.TotalStorage
+                }).FirstOrDefault();
         }
 
         public DoXMUser GetUserByID(string userID)
@@ -449,6 +311,7 @@ namespace DoXM_Server.Data
             DoXMContext.EventLogs.Add(eventLog);
             DoXMContext.SaveChanges();
         }
+
         public void WriteEvent(Exception ex)
         {
             var error = ex;
@@ -511,6 +374,32 @@ namespace DoXM_Server.Data
             return Tuple.Create(true, newPermission.ID);
         }
 
+        internal void AddPermissionToMachines(string userID, string[] machineIDs, string groupName)
+        {
+            var user = DoXMContext.Users
+                       .Include(x => x.Organization)
+                       .Include(x => x.Organization)
+                       .ThenInclude(x => x.Machines)
+                       .FirstOrDefault(x => x.Id == userID);
+
+            var group = user.Organization.PermissionGroups.FirstOrDefault(x => x.Name.ToLower() == groupName.ToLower());
+            foreach (var machineID in machineIDs)
+            {
+                if (user.Organization.Machines.Exists(x => x.ID == machineID))
+                {
+                    var machine = DoXMContext.Machines
+                                .Include(x => x.PermissionGroups)
+                                .FirstOrDefault(x => x.ID == machineID);
+                    if (!machine.PermissionGroups.Exists(x => x.ID == group.ID))
+                    {
+                        machine.PermissionGroups.Add(group);
+                        DoXMContext.Entry(machine).State = EntityState.Modified;
+                    }
+                }
+            }
+            DoXMContext.SaveChanges();
+        }
+
         internal Tuple<bool, string> AddPermissionToUser(string requesterUserName, string targetUserID, string permissionID)
         {
             var requester = DoXMContext.Users
@@ -571,6 +460,33 @@ namespace DoXM_Server.Data
             DoXMContext.SaveChanges();
         }
 
+        internal void CleanupOldRecords()
+        {
+            if (AppConfig.DataRetentionInDays > 0)
+            {
+                DoXMContext.EventLogs
+                    .Where(x => DateTime.Now - x.TimeStamp > TimeSpan.FromDays(AppConfig.DataRetentionInDays))
+                    .ForEachAsync(x =>
+                    {
+                        DoXMContext.Remove(x);
+                    });
+
+                DoXMContext.CommandContexts
+                    .Where(x => DateTime.Now - x.TimeStamp > TimeSpan.FromDays(AppConfig.DataRetentionInDays))
+                    .ForEachAsync(x =>
+                    {
+                        DoXMContext.Remove(x);
+                    });
+
+                DoXMContext.Machines
+                    .Where(x => DateTime.Now - x.LastOnline > TimeSpan.FromDays(AppConfig.DataRetentionInDays))
+                    .ForEachAsync(x =>
+                    {
+                        DoXMContext.Remove(x);
+                    });
+            }
+        }
+
         internal void DeleteInvite(string requesterUserName, string inviteID)
         {
             var requester = DoXMContext.Users
@@ -595,6 +511,15 @@ namespace DoXM_Server.Data
             DoXMContext.SaveChanges();
         }
 
+        internal bool DoesGroupExist(string userID, string groupName)
+        {
+            var user = DoXMContext.Users
+                        .Include(x => x.Organization)
+                        .ThenInclude(x => x.PermissionGroups)
+                        .FirstOrDefault(x => x.Id == userID);
+            return user.Organization.PermissionGroups.Exists(x => x.Name.ToLower() == groupName.ToLower());
+        }
+
         internal List<InviteLink> GetAllInviteLinks(string userName)
         {
             return DoXMContext.Users
@@ -615,6 +540,11 @@ namespace DoXM_Server.Data
                     .DoXMUsers;
         }
 
+        internal Organization GetFirstOrganization()
+        {
+            return DoXMContext.Organizations.FirstOrDefault();
+        }
+
         internal string GetOrganizationName(string userName)
         {
             return DoXMContext.Users
@@ -627,6 +557,13 @@ namespace DoXM_Server.Data
         internal SharedFile GetSharedFiled(string id)
         {
             return DoXMContext.SharedFiles.Find(id);
+        }
+
+        internal DoXMUserOptions GetUserOptions(string userName)
+        {
+            return DoXMContext.Users
+                    .FirstOrDefault(x => x.UserName == userName)
+                    .UserOptions;
         }
 
         internal IEnumerable<PermissionGroup> GetUserPermissions(string requesterUserName, string targetID)
@@ -642,6 +579,36 @@ namespace DoXM_Server.Data
             return targetUser.PermissionGroups;
         }
 
+        internal bool JoinViaInvitation(string userName, string inviteID)
+        {
+            var invite = DoXMContext.InviteLinks
+                .Include(x => x.Organization)
+                .ThenInclude(x => x.DoXMUsers)
+                .FirstOrDefault(x =>
+                    x.InvitedUser.ToLower() == userName.ToLower() &&
+                    x.ID == inviteID);
+
+            if (invite == null)
+            {
+                return false;
+            }
+
+            var user = DoXMContext.Users
+                .Include(x => x.Organization)
+                .FirstOrDefault(x => x.UserName == userName);
+
+            user.Organization = invite.Organization;
+            user.OrganizationID = invite.Organization.ID;
+            user.IsAdministrator = invite.IsAdmin;
+            user.PermissionGroups.Clear();
+            invite.Organization.DoXMUsers.Add(user);
+
+            DoXMContext.SaveChanges();
+
+            DoXMContext.InviteLinks.Remove(invite);
+            DoXMContext.SaveChanges();
+            return true;
+        }
         internal void RemoveFromOrganization(string requesterUserName, string targetUserID)
         {
             var requester = DoXMContext.Users
@@ -656,6 +623,27 @@ namespace DoXM_Server.Data
             DoXMContext.SaveChanges();
         }
 
+        internal void RemovePermissionFromMachines(string userID, string[] machineIDs, string groupName)
+        {
+            var user = DoXMContext.Users
+                      .Include(x => x.Organization)
+                      .ThenInclude(x => x.Machines)
+                      .FirstOrDefault(x => x.Id == userID);
+
+            var group = user.Organization.PermissionGroups.FirstOrDefault(x => x.Name.ToLower() == groupName.ToLower());
+            foreach (var machineID in machineIDs)
+            {
+                if (user.Organization.Machines.Exists(x => x.ID == machineID))
+                {
+                    var machine = DoXMContext.Machines
+                                .Include(x => x.PermissionGroups)
+                                .FirstOrDefault(x => x.ID == machineID);
+                    machine.PermissionGroups.RemoveAll(x => x.ID == group.ID);
+                    DoXMContext.Entry(machine).State = EntityState.Modified;
+                }
+            }
+            DoXMContext.SaveChanges();
+        }
         internal void RemovePermissionFromUser(string requesterUserName, string targetUserID, string permissionID)
         {
             var requester = DoXMContext.Users
@@ -669,6 +657,16 @@ namespace DoXM_Server.Data
             DoXMContext.SaveChanges();
         }
 
+        internal void SetServerVerificationToken(string machineID, string verificationToken)
+        {
+            var machine = DoXMContext.Machines.Find(machineID);
+            if (machine != null)
+            {
+                machine.ServerVerificationToken = verificationToken;
+                DoXMContext.SaveChanges();
+            }
+        }
+
         internal void UpdateOrganizationName(string userName, string organizationName)
         {
             DoXMContext.Users
@@ -678,9 +676,16 @@ namespace DoXM_Server.Data
                 .OrganizationName = organizationName;
             DoXMContext.SaveChanges();
         }
+
         internal void UpdateTags(string machineID, string tag)
         {
             DoXMContext.Machines.Find(machineID).Tags = tag;
+            DoXMContext.SaveChanges();
+        }
+
+        internal void UpdateUserOptions(string userName, DoXMUserOptions options)
+        {
+            DoXMContext.Users.FirstOrDefault(x => x.UserName == userName).UserOptions = options;
             DoXMContext.SaveChanges();
         }
     }

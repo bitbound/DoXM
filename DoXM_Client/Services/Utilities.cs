@@ -16,7 +16,19 @@ namespace DoXM_Client.Services
         {
             if (!File.Exists("ConnectionInfo.json"))
             {
-                throw new Exception("No connection info available.  Please create ConnectionInfo.json file with appropriate values.");
+                if (Debugger.IsAttached)
+                {
+                    var connectionInfo = new ConnectionInfo()
+                    {
+                        Host = "https://localhost:5001",
+                        MachineID = Guid.NewGuid().ToString()
+                    };
+                    SaveConnectionInfo(connectionInfo);
+                }
+                else
+                {
+                    throw new Exception("No connection info available.  Please create ConnectionInfo.json file with appropriate values.");
+                }
             }
             return JsonConvert.DeserializeObject<ConnectionInfo>(File.ReadAllText("ConnectionInfo.json"));
         }

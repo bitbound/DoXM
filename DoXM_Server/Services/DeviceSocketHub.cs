@@ -1,6 +1,8 @@
 ﻿using DoXM_Library.Models;
 using DoXM_Server.Data;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -15,29 +17,32 @@ namespace DoXM_Server.Services
 {
     public class DeviceSocketHub : Hub
     {
-        public DeviceSocketHub(DataService dataService, IHubContext<BrowserSocketHub> browserHub)
+        private readonly DataService _dataService;
+        private readonly IHubContext<BrowserSocketHub> _browserHub;
+
+        private readonly IWebHostEnvironment _hostEnv;
+
+        public DeviceSocketHub(
+            DataService dataService,
+            IHubContext<BrowserSocketHub> browserHub,
+            IWebHostEnvironment hostEnv)
         {
-            DataService = dataService;
-            BrowserHub = browserHub;
+            _dataService = dataService;
+            _browserHub = browserHub;
+            _hostEnv = hostEnv;
         }
-        
-        private DataService DataService { get; }
-        private IHubContext<BrowserSocketHub> BrowserHub { get; }
-        
+
+
         public static ConcurrentDictionary<string, Machine> ServiceConnections { get; set; } = new ConcurrentDictionary<string, Machine>();
 
-        public override Task OnConnectedAsync()
-        {
-            return base.OnConnectedAsync();
-        }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             if (Machine != null)
             {
-                DataService.MachineDisconnected(Machine.ID);
+                _dataService.MachineDisconnected(Machine.ID);
                 await this.Groups.RemoveFromGroupAsync(this.Context.ConnectionId, Machine.OrganizationID);
                 Machine.IsOnline = false;
-                await BrowserHub.Clients.Group(Machine.OrganizationID).SendAsync("MachineWentOffline", Machine);
+                await _browserHub.Clients.Group(Machine.OrganizationID).SendAsync("MachineWentOffline", Machine);
                 while (!ServiceConnections.TryRemove(Context.ConnectionId, out var machine))
                 {
                     await Task.Delay(1000);
@@ -50,7 +55,7 @@ namespace DoXM_Server.Services
         {
             if (ServiceConnections.Any(x=>x.Value.ID == machine.ID))
             {
-                DataService.WriteEvent(new EventLog()
+                _dataService.WriteEvent(new EventLog()
                 {
                     EventType = EventTypes.Info,
                     OrganizationID = Machine.OrganizationID,
@@ -59,10 +64,20 @@ namespace DoXM_Server.Services
                 Context.Abort();
                 return;
             }
+
+            if (string.IsNullOrWhiteSpace(machine.OrganizationID) && _hostEnv.IsDevelopment())
+            {
+                var firstOrg = _dataService.GetFirstOrganization();
+                if (firstOrg is not null)
+                {
+                    machine.Organization = firstOrg;
+                    machine.OrganizationID = firstOrg.ID;
+                }
+            }
             machine.IsOnline = true;
             machine.LastOnline = DateTime.Now;
             Machine = machine;
-            if (DataService.AddOrUpdateMachine(machine))
+            if (_dataService.AddOrUpdateMachine(machine))
             {
                 var failCount = 0;
                 while (!ServiceConnections.TryAdd(Context.ConnectionId, machine))
@@ -76,7 +91,7 @@ namespace DoXM_Server.Services
                     await Task.Delay(1000);
                 }
                 await this.Groups.AddToGroupAsync(this.Context.ConnectionId, machine.OrganizationID);
-                await BrowserHub.Clients.Group(Machine.OrganizationID).SendAsync("MachineCameOnline", Machine);
+                await _browserHub.Clients.Group(Machine.OrganizationID).SendAsync("MachineCameOnline", Machine);
             }
             else
             {
@@ -90,28 +105,28 @@ namespace DoXM_Server.Services
             machine.IsOnline = true;
             machine.LastOnline = DateTime.Now;
             Machine = machine;
-            DataService.AddOrUpdateMachine(machine);
-            await BrowserHub.Clients.Group(Machine.OrganizationID).SendAsync("MachineHeartbeat", Machine);
+            _dataService.AddOrUpdateMachine(machine);
+            await _browserHub.Clients.Group(Machine.OrganizationID).SendAsync("MachineHeartbeat", Machine);
         }
         public async Task PSCoreResult(PSCoreCommandResult result)
         {
             result.MachineID = Machine.ID;
-            var commandContext = DataService.GetCommandContext(result.CommandContextID);
+            var commandContext = _dataService.GetCommandContext(result.CommandContextID);
             commandContext.PSCoreResults.Add(result);
-            DataService.AddOrUpdateCommandContext(commandContext);
-            await BrowserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("PSCoreResult", result);
+            _dataService.AddOrUpdateCommandContext(commandContext);
+            await _browserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("PSCoreResult", result);
         }
         public async Task CommandResult(GenericCommandResult result)
         {
             result.MachineID = Machine.ID;
-            var commandContext = DataService.GetCommandContext(result.CommandContextID);
+            var commandContext = _dataService.GetCommandContext(result.CommandContextID);
             commandContext.CommandResults.Add(result);
-            DataService.AddOrUpdateCommandContext(commandContext);
-            await BrowserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("CommandResult", result);
+            _dataService.AddOrUpdateCommandContext(commandContext);
+            await _browserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("CommandResult", result);
         }
         public async Task DisplayConsoleMessage(string message, string requesterID)
         {
-            await BrowserHub.Clients.Client(requesterID).SendAsync("DisplayConsoleMessage", message);
+            await _browserHub.Clients.Client(requesterID).SendAsync("DisplayConsoleMessage", message);
         }
        
         public async Task SendServerVerificationToken()
@@ -121,32 +136,32 @@ namespace DoXM_Server.Services
         public void SetServerVerificationToken(string verificationToken)
         {
             Machine.ServerVerificationToken = verificationToken;
-            DataService.SetServerVerificationToken(Machine.ID, verificationToken);
+            _dataService.SetServerVerificationToken(Machine.ID, verificationToken);
         }
 
         public async void TransferCompleted(string transferID, string requesterID)
         {
-            await BrowserHub.Clients.Client(requesterID).SendAsync("TransferCompleted", transferID);
+            await _browserHub.Clients.Client(requesterID).SendAsync("TransferCompleted", transferID);
         }
         public async void PSCoreResultViaAjax(string commandID)
         {
-            var commandContext = DataService.GetCommandContext(commandID);
-            await BrowserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("PSCoreResultViaAjax", commandID, Machine.ID);
+            var commandContext = _dataService.GetCommandContext(commandID);
+            await _browserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("PSCoreResultViaAjax", commandID, Machine.ID);
         }
         public async void CMDResultViaAjax(string commandID)
         {
-            var commandContext = DataService.GetCommandContext(commandID);
-            await BrowserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("CMDResultViaAjax", commandID, Machine.ID);
+            var commandContext = _dataService.GetCommandContext(commandID);
+            await _browserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("CMDResultViaAjax", commandID, Machine.ID);
         }
         public async void WinPSResultViaAjax(string commandID)
         {
-            var commandContext = DataService.GetCommandContext(commandID);
-            await BrowserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("WinPSResultViaAjax", commandID, Machine.ID);
+            var commandContext = _dataService.GetCommandContext(commandID);
+            await _browserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("WinPSResultViaAjax", commandID, Machine.ID);
         }
         public async void BashResultViaAjax(string commandID)
         {
-            var commandContext = DataService.GetCommandContext(commandID);
-            await BrowserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("BashResultViaAjax", commandID, Machine.ID);
+            var commandContext = _dataService.GetCommandContext(commandID);
+            await _browserHub.Clients.Client(commandContext.SenderConnectionID).SendAsync("BashResultViaAjax", commandID, Machine.ID);
         }
         private Machine Machine
         {
